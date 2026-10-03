@@ -1,0 +1,41 @@
+{
+  "manifest_version": 2,
+  "name": "Snoopy Vertical",
+  "version": "1.0.0",
+  "description": "Snoopy theme reworked for vertical tabs.",
+  "theme": {
+    "images": {
+      "additional_backgrounds": ["images/header.png"]
+    },
+    "properties": {
+      "additional_backgrounds_alignment": ["center top"],
+      "additional_backgrounds_tiling": ["no-repeat"]
+    },
+    "colors": {
+      "frame": "#ffffff",
+      "frame_inactive": "#ffffff",
+      "tab_background_text": "#5f5952",
+      "tab_selected": "#898076",
+      "tab_text": "#ffffff",
+      "tab_line": "#9a9289",
+      "toolbar": "rgba(255, 255, 255, 0)",
+      "toolbar_text": "#9a9289",
+      "toolbar_field": "#d6c8b999",
+      "toolbar_field_focus": "#ffffff",
+      "toolbar_field_text": "#5f5952",
+      "toolbar_field_border": "#d6c8b9",
+      "toolbar_top_separator": "#d6c8b9",
+      "toolbar_bottom_separator": "#d6c8b9",
+      "sidebar": "#ffffff",
+      "sidebar_text": "#5f5952",
+      "sidebar_border": "#d6c8b9",
+      "sidebar_highlight": "#898076",
+      "sidebar_highlight_text": "#ffffff"
+    }
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "snoopy-vertical@danielliew"
+    }
+  }
+}

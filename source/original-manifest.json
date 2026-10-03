@@ -1,0 +1,32 @@
+{
+  "manifest_version": 2,
+  "name": "Snoopy",
+  "version": "1.0",
+  "theme": {
+    "images": {
+      "theme_frame": "images/mybg.png"
+    },
+    "colors": {
+      "frame": "#ffffff",
+      "frame_inactive": "#ffffff",
+      "tab_background_text": "#5f5952",
+      "tab_selected": "#898076",
+      "tab_text": "#ffffff",
+      "tab_line": "#9a9289",
+      "toolbar": "#ffffff",
+      "toolbar_text": "#9a9289",
+      "toolbar_field": "#d6c8b999",
+      "toolbar_field_text": "#9a9289",
+      "toolbar_field_border": "#d6c8b9",
+      "toolbar_top_separator": "#d6c8b9",
+      "sidebar": "#9a9289",
+      "sidebar_text": "#ffffff",
+      "sidebar_border": "#082e43"
+    }
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "{1ccd0df4-230a-4208-acec-e0d2dcc3ace3}"
+    }
+  }
+}
