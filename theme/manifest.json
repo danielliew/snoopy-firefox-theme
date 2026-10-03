@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Snoopy Vertical",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Snoopy theme reworked for vertical tabs.",
   "theme": {
     "images": {
@@ -42,7 +42,8 @@
   },
   "browser_specific_settings": {
     "gecko": {
-      "id": "snoopy-vertical@danielliew"
+      "id": "snoopy-vertical@danielliew",
+      "update_url": "https://raw.githubusercontent.com/danielliew/snoopy-firefox-theme/main/updates.json"
     }
   }
 }
