@@ -1,8 +1,20 @@
 # Snoopy Vertical
 
-Firefox theme based on [Snoopy (animated)](https://addons.mozilla.org/firefox/addon/snoopy-animated/), reworked for vertical tabs: sprites are swapped, centered around the URL bar, and sized to fit the single nav bar row.
+Firefox theme based on [Snoopy (animated)](https://addons.mozilla.org/firefox/addon/snoopy-animated/), reworked for vertical tabs (expanded and collapsed) with a comic-strip look.
 
-Peanuts characters and artwork © Peanuts Worldwide LLC. This is a non-commercial fan project.
+It has two parts:
+
+- **`theme/`**: a signed Firefox theme with the Peanuts colors (paper tab sidebar, inked selected tab and URL bar) and a centered fallback animation.
+- **`userChrome/`**: optional CSS and assets for what themes can't do: sprites pinned next to the reload button and URL bar, a Charlie Brown zigzag under the toolbar, hover styles, and easter eggs.
+
+Peanuts characters and artwork © Peanuts Worldwide LLC. This is a non-commercial fan project. Animations from the official [Peanuts GIPHY account](https://giphy.com/peanuts): [sleeping](https://giphy.com/gifs/2rJw85F0vFJN0SLn3X), [happy dance](https://giphy.com/gifs/7xIMPoVGL2yzu), [Woodstock flying](https://giphy.com/gifs/jptAHfCnH8rSgVSjcE), [doghouse](https://giphy.com/gifs/SvKTWdJjUDcklNyQ0k).
+
+## Easter eggs
+
+- Snoopy falls asleep on his doghouse when the Firefox window is in the background.
+- Snoopy does his happy dance while the current page loads.
+- Woodstock flutters into the empty toolbar space you hover.
+- Snoopy's doghouse sits at the bottom of the expanded tab sidebar; a lone Woodstock when collapsed.
 
 ## Build
 
@@ -12,7 +24,7 @@ python3 -m venv .venv
 .venv/bin/python build.py
 ```
 
-This writes `theme/images/header.png` and `dist/snoopy-vertical.xpi`. Sprite positions, sizes, and gaps are constants at the top of `build.py`.
+This writes `theme/images/header.png`, the 2x (Retina) animations in `userChrome/assets/`, and `dist/snoopy-vertical.xpi`. Source art lives in `source/`; sizes and frame-rate caps are constants at the top of `build.py`.
 
 ## Try it
 
@@ -42,19 +54,17 @@ Release Firefox only installs signed add-ons, so each release is signed by Mozil
 6. Commit, tag, and push:
 
    ```sh
-   git commit -am "Release vX.Y.Z"
+   git add -A && git commit -m "Release vX.Y.Z"
    git tag vX.Y.Z
    git push --follow-tags
    ```
 
 Signed files in `dist/` are not committed. Re-download any past signed version from the add-on's page in the [Developer Hub](https://addons.mozilla.org/developers/addons).
 
-Changes to `userChrome/userChrome.css` don't need a release; restart Firefox to pick them up.
+Changes under `userChrome/` don't need a release; restart Firefox to pick them up.
 
-## Notion-style URL bar (optional)
-
-The theme makes the URL bar transparent at rest and white while typing. Themes can't style hover, so `userChrome/userChrome.css` adds the white-on-hover state, rounded corners, soft shadows, and Notion-like result rows.
+## userChrome (sprites, zigzag, easter eggs)
 
 1. In `about:config`, set `toolkit.legacyUserProfileCustomizations.stylesheets` to `true`.
-2. Symlink it into your profile so edits apply on restart (find `<profile>` via `about:support` → **Profile Folder**): `ln -sf "$PWD/userChrome/userChrome.css" "<profile>/chrome/userChrome.css"`
+2. Link the folder as your profile's `chrome` folder (find `<profile>` via `about:support` → **Profile Folder**; move any existing `chrome` folder aside first): `ln -s "$PWD/userChrome" "<profile>/chrome"`
 3. Restart Firefox.

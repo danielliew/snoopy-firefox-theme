@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Snoopy Vertical",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Snoopy theme reworked for vertical tabs.",
   "theme": {
     "images": {
@@ -12,32 +12,32 @@
       "additional_backgrounds_tiling": ["no-repeat"]
     },
     "colors": {
-      "frame": "#ffffff",
-      "frame_inactive": "#ffffff",
+      "frame": "#fbf5e6",
+      "frame_inactive": "#fbf5e6",
       "tab_background_text": "#5f5952",
-      "tab_selected": "#898076",
-      "tab_text": "#ffffff",
-      "tab_line": "#9a9289",
+      "tab_selected": "#ffffff",
+      "tab_text": "#37352f",
+      "tab_line": "#37352f",
       "toolbar": "rgba(255, 255, 255, 0)",
-      "toolbar_text": "#9a9289",
+      "toolbar_text": "#5f5952",
       "toolbar_field": "rgba(255, 255, 255, 0)",
       "toolbar_field_text": "#37352f",
       "toolbar_field_border": "rgba(255, 255, 255, 0)",
       "toolbar_field_focus": "#ffffff",
       "toolbar_field_text_focus": "#37352f",
-      "toolbar_field_border_focus": "rgba(55, 53, 47, 0.16)",
-      "toolbar_field_highlight": "rgba(35, 131, 226, 0.28)",
+      "toolbar_field_border_focus": "#37352f",
+      "toolbar_field_highlight": "rgba(246, 197, 68, 0.45)",
       "toolbar_field_highlight_text": "#37352f",
       "popup": "#ffffff",
       "popup_text": "#37352f",
-      "popup_border": "rgba(55, 53, 47, 0.16)",
-      "toolbar_top_separator": "#d6c8b9",
-      "toolbar_bottom_separator": "#d6c8b9",
-      "sidebar": "#ffffff",
-      "sidebar_text": "#5f5952",
-      "sidebar_border": "#d6c8b9",
-      "sidebar_highlight": "#898076",
-      "sidebar_highlight_text": "#ffffff"
+      "popup_border": "#37352f",
+      "toolbar_top_separator": "rgba(0, 0, 0, 0)",
+      "toolbar_bottom_separator": "#37352f",
+      "sidebar": "#fbf5e6",
+      "sidebar_text": "#37352f",
+      "sidebar_border": "#e8dcc0",
+      "sidebar_highlight": "#ffffff",
+      "sidebar_highlight_text": "#37352f"
     }
   },
   "browser_specific_settings": {
