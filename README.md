@@ -1,6 +1,6 @@
 # Snoopy Vertical
 
-Firefox theme based on [Snoopy (animated)](https://addons.mozilla.org/firefox/addon/snoopy_animated/), reworked for vertical tabs: sprites are swapped, centered around the URL bar, and sized to fit the single nav bar row.
+Firefox theme based on [Snoopy (animated)](https://addons.mozilla.org/firefox/addon/snoopy-animated/), reworked for vertical tabs: sprites are swapped, centered around the URL bar, and sized to fit the single nav bar row.
 
 Peanuts characters and artwork © Peanuts Worldwide LLC. This is a non-commercial fan project.
 
