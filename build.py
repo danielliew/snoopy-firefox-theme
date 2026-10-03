@@ -38,6 +38,9 @@ ASSET_HEIGHTS = {
     "doghouse-scene": 83,
 }
 
+# Assets kept in their original colors instead of black-and-white line art.
+KEEP_COLOR = {"woodstock-cart"}
+
 # Always-visible animations get a lower frame rate.
 ASSET_MIN_FRAME_MS = {"doghouse-scene": 80}
 
@@ -160,7 +163,8 @@ def build_asset(name, frames, durations):
     frames = [clear_white_background(f) for f in frames]
     box = union_bbox(frames)
     frames = fit_height([f.crop(box) for f in frames], ASSET_HEIGHTS[name] * SCALE)
-    frames = ink(frames)
+    if name not in KEEP_COLOR:
+        frames = ink(frames)
     frames, durations = merge_still_frames(frames, durations, min_ms=ASSET_MIN_FRAME_MS.get(name, MIN_FRAME_MS))
     path = ASSETS / f"{name}.png"
     save_apng(frames, durations, path)
@@ -175,7 +179,9 @@ def build_header(source_frames, durations):
         "right": [clear_white_background(f.crop(CART_BOX)) for f in source_frames],
     }
     sprites["left"] = ink(fit_height(sprites["left"], 38))
-    sprites["right"] = ink(fit_height(sprites["right"], 30))
+    sprites["right"] = fit_height(sprites["right"], 30)
+    if "woodstock-cart" not in KEEP_COLOR:
+        sprites["right"] = ink(sprites["right"])
     half = max(LEFT_GAP + sprites["left"][0].width, RIGHT_GAP + sprites["right"][0].width)
 
     frames = []
