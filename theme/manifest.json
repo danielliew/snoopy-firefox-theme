@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Snoopy Vertical",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Snoopy theme reworked for vertical tabs.",
   "theme": {
     "images": {
@@ -32,7 +32,7 @@
       "popup_text": "#37352f",
       "popup_border": "#37352f",
       "toolbar_top_separator": "rgba(0, 0, 0, 0)",
-      "toolbar_bottom_separator": "#37352f",
+      "toolbar_bottom_separator": "rgba(55, 53, 47, 0.09)",
       "sidebar": "#fbf5e6",
       "sidebar_text": "#37352f",
       "sidebar_border": "#e8dcc0",

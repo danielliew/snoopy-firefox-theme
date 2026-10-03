@@ -3,7 +3,7 @@
 import zipfile
 from pathlib import Path
 
-from PIL import Image, ImageChops, ImageDraw
+from PIL import Image, ImageChops, ImageDraw, ImageFilter
 
 ROOT = Path(__file__).parent
 SOURCE = ROOT / "source" / "original-header.png"
@@ -67,6 +67,49 @@ def clear_white_background(frame, threshold=235):
     return out
 
 
+def ramp(low, high):
+    return lambda v: 0 if v <= low else 255 if v >= high else round(255 * (v - low) / (high - low))
+
+
+def _flatten(frame, alpha):
+    flat = Image.new("RGB", frame.size, "white")
+    flat.paste(frame, mask=alpha)
+    return flat
+
+
+def _boundaries(index_map):
+    out = Image.new("L", index_map.size, 0)
+    for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+        moved = ImageChops.offset(index_map, dx, dy)
+        out = ImageChops.lighter(out, ImageChops.difference(index_map, moved).point(lambda v: 255 if v else 0))
+    return out
+
+
+def ink(frames, colors=6):
+    """Notion-style line art: keep the black ink, outline color regions, fill with white.
+
+    Each frame is reduced to a few flat color regions (one palette shared by
+    all frames so lines don't flicker) and a line is drawn where regions meet.
+    Peanuts linework is dark and unsaturated, so it is kept; colored fills
+    (red doghouse, yellow Woodstock) turn white. Run after resizing so line
+    weight matches across assets.
+    """
+    first_alpha = frames[0].getchannel("A").point(lambda v: 255 if v > 100 else 0)
+    palette = _flatten(frames[0], first_alpha).quantize(colors=colors, method=Image.Quantize.MEDIANCUT)
+    out = []
+    for frame in frames:
+        alpha = frame.getchannel("A").point(lambda v: 255 if v > 100 else 0)
+        flat = _flatten(frame, alpha)
+        regions = flat.quantize(palette=palette, dither=Image.Dither.NONE).filter(ImageFilter.ModeFilter(3))
+        index_map = Image.frombytes("L", regions.size, regions.tobytes())
+        _, saturation, value = flat.convert("HSV").split()
+        lines = ImageChops.lighter(value.point(ramp(60, 120)), saturation.point(ramp(60, 110)))
+        edges = ImageChops.lighter(_boundaries(index_map), _boundaries(alpha))
+        gray = ImageChops.darker(lines, ImageChops.invert(edges))
+        out.append(Image.merge("RGBA", (gray, gray, gray, frame.getchannel("A"))))
+    return out
+
+
 def union_bbox(frames):
     box = None
     for f in frames:
@@ -117,6 +160,7 @@ def build_asset(name, frames, durations):
     frames = [clear_white_background(f) for f in frames]
     box = union_bbox(frames)
     frames = fit_height([f.crop(box) for f in frames], ASSET_HEIGHTS[name] * SCALE)
+    frames = ink(frames)
     frames, durations = merge_still_frames(frames, durations, min_ms=ASSET_MIN_FRAME_MS.get(name, MIN_FRAME_MS))
     path = ASSETS / f"{name}.png"
     save_apng(frames, durations, path)
@@ -130,8 +174,8 @@ def build_header(source_frames, durations):
         "left": [clear_white_background(f.crop(TYPING_BOX)) for f in source_frames],
         "right": [clear_white_background(f.crop(CART_BOX)) for f in source_frames],
     }
-    sprites["left"] = fit_height(sprites["left"], 38)
-    sprites["right"] = fit_height(sprites["right"], 30)
+    sprites["left"] = ink(fit_height(sprites["left"], 38))
+    sprites["right"] = ink(fit_height(sprites["right"], 30))
     half = max(LEFT_GAP + sprites["left"][0].width, RIGHT_GAP + sprites["right"][0].width)
 
     frames = []

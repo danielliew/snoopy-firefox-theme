@@ -21,15 +21,21 @@
   --tab-box-shadow-selected: 2px 2px 0 var(--peanuts-ink) !important;
 }
 
-/* ---------- Toolbar: white strip with a Charlie Brown zigzag hem ---------- */
+/* ---------- Toolbar and find bar ---------- */
 
 #nav-bar {
   background-color: #ffffff !important;
+}
+
+/* Charlie Brown zigzag along the top of the Cmd+F find bar. */
+findbar {
+  background-color: #ffffff !important;
   background-image: var(--peanuts-zigzag) !important;
   background-repeat: repeat-x !important;
-  background-position: left bottom !important;
+  background-position: left top !important;
   background-size: 16px 6px !important;
-  padding-bottom: 6px !important;
+  padding-top: 6px !important;
+  border-top: none !important;
 }
 
 /* ---------- Sprites in the flexible spaces around the URL bar ---------- */
@@ -56,18 +62,6 @@
 #stop-reload-button + toolbarspring:-moz-window-inactive {
   background-image: url("assets/snoopy-sleeping.png");
   background-size: 22px 35px;
-}
-
-/* Easter egg: Woodstock flutters into empty toolbar space you hover. */
-#stop-reload-button + toolbarspring:hover {
-  background-image: url("assets/woodstock-flying.png"), url("assets/snoopy-typing.png");
-  background-size: 23px 22px, 59px 35px;
-  background-position: left 66px center, left 4px center;
-}
-
-#urlbar-container + toolbarspring:hover {
-  background-image: url("assets/woodstock-flying.png");
-  background-size: 23px 22px;
 }
 
 /* Easter egg: happy dance while the current page loads. */

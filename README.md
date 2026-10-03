@@ -5,7 +5,7 @@ Firefox theme based on [Snoopy (animated)](https://addons.mozilla.org/firefox/ad
 It has two parts:
 
 - **`theme/`**: a signed Firefox theme with the Peanuts colors (paper tab sidebar, inked selected tab and URL bar) and a centered fallback animation.
-- **`userChrome/`**: optional CSS and assets for what themes can't do: sprites pinned next to the reload button and URL bar, a Charlie Brown zigzag under the toolbar, hover styles, and easter eggs.
+- **`userChrome/`**: optional CSS and assets for what themes can't do: black-and-white sprites pinned next to the reload button and URL bar, a Charlie Brown zigzag on the Cmd+F find bar, hover styles, and easter eggs.
 
 Peanuts characters and artwork © Peanuts Worldwide LLC. This is a non-commercial fan project. Animations from the official [Peanuts GIPHY account](https://giphy.com/peanuts): [sleeping](https://giphy.com/gifs/2rJw85F0vFJN0SLn3X), [happy dance](https://giphy.com/gifs/7xIMPoVGL2yzu), [Woodstock flying](https://giphy.com/gifs/jptAHfCnH8rSgVSjcE), [doghouse](https://giphy.com/gifs/SvKTWdJjUDcklNyQ0k).
 
@@ -13,7 +13,6 @@ Peanuts characters and artwork © Peanuts Worldwide LLC. This is a non-commercia
 
 - Snoopy falls asleep on his doghouse when the Firefox window is in the background.
 - Snoopy does his happy dance while the current page loads.
-- Woodstock flutters into the empty toolbar space you hover.
 - Snoopy's doghouse sits at the bottom of the expanded tab sidebar; a lone Woodstock when collapsed.
 
 ## Build
@@ -24,7 +23,7 @@ python3 -m venv .venv
 .venv/bin/python build.py
 ```
 
-This writes `theme/images/header.png`, the 2x (Retina) animations in `userChrome/assets/`, and `dist/snoopy-vertical.xpi`. Source art lives in `source/`; sizes and frame-rate caps are constants at the top of `build.py`.
+This writes `theme/images/header.png`, the 2x (Retina) animations in `userChrome/assets/` (converted to Notion-style black-and-white line art), and `dist/snoopy-vertical.xpi`. Source art lives in `source/`; sizes and frame-rate caps are constants at the top of `build.py`.
 
 ## Try it
 
@@ -63,7 +62,7 @@ Signed files in `dist/` are not committed. Re-download any past signed version f
 
 Changes under `userChrome/` don't need a release; restart Firefox to pick them up.
 
-## userChrome (sprites, zigzag, easter eggs)
+## userChrome (sprites, find bar zigzag, easter eggs)
 
 1. In `about:config`, set `toolkit.legacyUserProfileCustomizations.stylesheets` to `true`.
 2. Link the folder as your profile's `chrome` folder (find `<profile>` via `about:support` → **Profile Folder**; move any existing `chrome` folder aside first): `ln -s "$PWD/userChrome" "<profile>/chrome"`
