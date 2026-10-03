@@ -27,3 +27,11 @@ npx web-ext sign --source-dir theme --channel unlisted --api-key "$AMO_JWT_ISSUE
 ```
 
 Then open the generated `.xpi` in Firefox. Bump `version` in `theme/manifest.json` before each re-sign.
+
+## Notion-style URL bar (optional)
+
+The theme makes the URL bar transparent at rest and white while typing. Themes can't style hover, so `userChrome/userChrome.css` adds the white-on-hover state, rounded corners, soft shadows, and Notion-like result rows.
+
+1. In `about:config`, set `toolkit.legacyUserProfileCustomizations.stylesheets` to `true`.
+2. Copy `userChrome/userChrome.css` into `<profile>/chrome/userChrome.css` (find `<profile>` via `about:support` → **Profile Folder**).
+3. Restart Firefox.

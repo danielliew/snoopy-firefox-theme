@@ -1,0 +1,48 @@
+/* Notion-style URL bar for the Snoopy Vertical theme. */
+
+#urlbar {
+  --urlbar-background-border-radius: 6px !important;
+  --urlbarview-background-color-hover: rgba(55, 53, 47, 0.06) !important;
+  --urlbarview-background-color-selected: rgba(55, 53, 47, 0.08) !important;
+  --urlbarview-text-color-selected: #37352f !important;
+  --urlbarview-separator-color: rgba(55, 53, 47, 0.09) !important;
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif !important;
+}
+
+#urlbar > .urlbar-background {
+  transition: background-color 120ms ease, border-color 120ms ease, box-shadow 120ms ease !important;
+}
+
+#urlbar:not([focused], [open]):hover > .urlbar-background {
+  background-color: #ffffff !important;
+  border-color: rgba(55, 53, 47, 0.16) !important;
+  box-shadow: rgba(15, 15, 15, 0.05) 0 0 0 1px, rgba(15, 15, 15, 0.08) 0 2px 4px !important;
+}
+
+#urlbar[focused]:not([open]) > .urlbar-background {
+  outline: none !important;
+  border-color: rgba(55, 53, 47, 0.16) !important;
+  box-shadow: rgba(15, 15, 15, 0.05) 0 0 0 1px, rgba(15, 15, 15, 0.1) 0 3px 6px !important;
+}
+
+#urlbar[open] > .urlbar-background {
+  border-color: rgba(55, 53, 47, 0.16) !important;
+  box-shadow:
+    rgba(15, 15, 15, 0.05) 0 0 0 1px,
+    rgba(15, 15, 15, 0.1) 0 3px 6px,
+    rgba(15, 15, 15, 0.2) 0 9px 24px !important;
+}
+
+#urlbar .urlbar-input::placeholder {
+  color: rgba(55, 53, 47, 0.5) !important;
+  opacity: 1 !important;
+}
+
+#urlbar .urlbarView-row {
+  border-radius: 4px !important;
+}
+
+#urlbar .urlbarView-url,
+#urlbar .urlbarView-action {
+  color: rgba(55, 53, 47, 0.65) !important;
+}
