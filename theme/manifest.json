@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Snoopy Vertical",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Snoopy theme reworked for vertical tabs.",
   "theme": {
     "images": {

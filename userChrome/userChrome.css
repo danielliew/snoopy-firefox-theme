@@ -1,7 +1,17 @@
-/* Notion-style URL bar for the Snoopy Vertical theme. */
+/* Notion-style URL bar for the Snoopy Vertical theme.
+   User stylesheets lose to Firefox's own rules unless marked !important. */
 
 #urlbar {
+  --notion-border: 1px solid rgba(55, 53, 47, 0.16);
+  --notion-shadow-sm: rgba(15, 15, 15, 0.05) 0 0 0 1px, rgba(15, 15, 15, 0.08) 0 2px 4px;
+  --notion-shadow-md: rgba(15, 15, 15, 0.05) 0 0 0 1px, rgba(15, 15, 15, 0.1) 0 3px 6px;
+  --notion-shadow-lg: rgba(15, 15, 15, 0.05) 0 0 0 1px, rgba(15, 15, 15, 0.1) 0 3px 6px, rgba(15, 15, 15, 0.2) 0 9px 24px;
+
   --urlbar-background-border-radius: 6px !important;
+  --urlbar-background-border-focused: var(--notion-border) !important;
+  --urlbar-background-border-open: var(--notion-border) !important;
+  --urlbar-background-outline-focused: none !important;
+  --urlbar-background-box-shadow-open: var(--notion-shadow-lg) !important;
   --urlbarview-background-color-hover: rgba(55, 53, 47, 0.06) !important;
   --urlbarview-background-color-selected: rgba(55, 53, 47, 0.08) !important;
   --urlbarview-text-color-selected: #37352f !important;
@@ -9,28 +19,21 @@
   font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif !important;
 }
 
-#urlbar > .urlbar-background {
-  transition: background-color 120ms ease, border-color 120ms ease, box-shadow 120ms ease !important;
-}
-
+/* Firefox has no hover or focused-shadow tokens for the URL bar. */
 #urlbar:not([focused], [open]):hover > .urlbar-background {
   background-color: #ffffff !important;
-  border-color: rgba(55, 53, 47, 0.16) !important;
-  box-shadow: rgba(15, 15, 15, 0.05) 0 0 0 1px, rgba(15, 15, 15, 0.08) 0 2px 4px !important;
+  border: var(--notion-border) !important;
+  box-shadow: var(--notion-shadow-sm) !important;
 }
 
 #urlbar[focused]:not([open]) > .urlbar-background {
-  outline: none !important;
-  border-color: rgba(55, 53, 47, 0.16) !important;
-  box-shadow: rgba(15, 15, 15, 0.05) 0 0 0 1px, rgba(15, 15, 15, 0.1) 0 3px 6px !important;
+  box-shadow: var(--notion-shadow-md) !important;
 }
 
-#urlbar[open] > .urlbar-background {
-  border-color: rgba(55, 53, 47, 0.16) !important;
-  box-shadow:
-    rgba(15, 15, 15, 0.05) 0 0 0 1px,
-    rgba(15, 15, 15, 0.1) 0 3px 6px,
-    rgba(15, 15, 15, 0.2) 0 9px 24px !important;
+@media (prefers-reduced-motion: no-preference) {
+  #urlbar > .urlbar-background {
+    transition: background-color 120ms ease, border-color 120ms ease, box-shadow 120ms ease !important;
+  }
 }
 
 #urlbar .urlbar-input::placeholder {

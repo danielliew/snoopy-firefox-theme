@@ -3,7 +3,7 @@
 import zipfile
 from pathlib import Path
 
-from PIL import Image
+from PIL import Image, ImageChops
 
 ROOT = Path(__file__).parent
 SOURCE = ROOT / "source" / "original-header.png"
@@ -80,6 +80,23 @@ def build_frames(frames):
     return out
 
 
+def merge_still_frames(frames, durations, threshold=16):
+    """Fold frames that differ only by compression noise into the previous one.
+
+    Every APNG frame makes Firefox repaint the toolbar, so dropping invisible
+    changes cuts repaints and file size without changing the animation.
+    """
+    kept, kept_durations = [frames[0]], [durations[0]]
+    for frame, duration in zip(frames[1:], durations[1:]):
+        delta = ImageChops.difference(kept[-1], frame).point(lambda v: 255 if v > threshold else 0)
+        if delta.getbbox(alpha_only=False):
+            kept.append(frame)
+            kept_durations.append(duration)
+        else:
+            kept_durations[-1] += duration
+    return kept, kept_durations
+
+
 def save_apng(frames, durations, path):
     path.parent.mkdir(parents=True, exist_ok=True)
     frames[0].save(
@@ -105,7 +122,7 @@ def package(theme_dir, dist):
 
 def main():
     frames, durations = load_frames(SOURCE)
-    header = build_frames(frames)
+    header, durations = merge_still_frames(build_frames(frames), durations)
     save_apng(header, durations, HEADER_OUT)
     xpi = package(THEME_DIR, DIST)
     print(f"{len(header)} frames, {header[0].width}x{header[0].height} -> {HEADER_OUT.relative_to(ROOT)}")
