@@ -14,6 +14,7 @@
   --skate-cruise: url("assets/skate-cruise.png");
   --charlie-dance: url("assets/charlie-dance.png");
   --christmas-dancer: url("assets/christmas-dancer.png");
+  --snoopy-guitar: url("assets/snoopy-guitar.png");
 }
 @media -moz-pref("snoopy.animations.slow") {
   :root {
@@ -30,6 +31,7 @@
     --skate-cruise: url("assets/slow/skate-cruise.png");
     --charlie-dance: url("assets/slow/charlie-dance.png");
     --christmas-dancer: url("assets/slow/christmas-dancer.png");
+    --snoopy-guitar: url("assets/slow/snoopy-guitar.png");
   }
 }
 @media -moz-pref("snoopy.animations.paused"), (prefers-reduced-motion: reduce) {
@@ -47,6 +49,7 @@
     --skate-cruise: url("assets/still/skate-cruise.png");
     --charlie-dance: url("assets/still/charlie-dance.png");
     --christmas-dancer: url("assets/still/christmas-dancer.png");
+    --snoopy-guitar: url("assets/still/snoopy-guitar.png");
   }
 }
 

@@ -194,10 +194,12 @@
   #nav-bar-customization-target:not(:has(> #stop-reload-button + toolbarspring)) > #urlbar-container::before {
     content: "";
     min-width: 72px !important;
-    background-image: var(--snoopy-left);
-    background-size: var(--snoopy-left-size);
+    /* A guitar solo takes over (the usual Snoopy slides out of view) while a click reaction plays. */
+    background-image: var(--snoopy-guitar), var(--snoopy-left);
+    background-size: auto calc(var(--snoopy-react) * 35px), var(--snoopy-left-size);
     background-repeat: no-repeat !important;
-    background-position: left 4px center;
+    background-position: left 4px center, left calc(4px - var(--snoopy-react) * 100px) center;
+    transition: --snoopy-react 0s var(--react-duration);
   }
 }
 
@@ -326,15 +328,14 @@ sidebar-main[sidebar-ongoing-animations] > #vertical-tabs::after {
 
 /* Easter egg: clicking the doghouse plays a happy dance, Joe Cool, or a skater
    crossing the sidebar; clicking reading Snoopy brings a Christmas dancer; clicking
-   Woodstock makes Charlie Brown dance; clicking empty toolbar space sends a skater
-   across the toolbar. Layers are hidden with zero height until --snoopy-pick selects them. */
+   toolbar Snoopy starts a guitar solo; clicking Woodstock makes Charlie Brown dance.
+   Layers are hidden with zero height until --snoopy-pick selects them. */
 @keyframes snoopy-pick {
   from { --snoopy-phase: 0; }
   to { --snoopy-phase: 3; }
 }
 
-#vertical-tabs::before,
-#nav-bar::after {
+#vertical-tabs::before {
   --pick-0: max(0, 1 - abs(var(--snoopy-pick)));
   --pick-1: max(0, 1 - abs(var(--snoopy-pick) - 1));
   --pick-2: max(0, 1 - abs(var(--snoopy-pick) - 2));
@@ -346,9 +347,6 @@ sidebar-main[sidebar-ongoing-animations] > #vertical-tabs::after {
   opacity: min(1, var(--snoopy-react) * 1000);
   animation: snoopy-pick 2.1s steps(3) infinite paused;
   transition: --snoopy-react var(--react-duration) linear, --snoopy-pick 0s var(--react-duration);
-}
-
-#vertical-tabs::before {
   inset: auto 0 0;
   height: var(--sidebar-scene-room);
   background-image: var(--snoopy-dance), var(--joe-cool), var(--skate-jump), var(--christmas-dancer);
@@ -357,31 +355,19 @@ sidebar-main[sidebar-ongoing-animations] > #vertical-tabs::after {
   background-position: center bottom 4px, center bottom 4px, left calc(var(--trip) * 100%) bottom 4px, center bottom 4px;
 }
 
-#nav-bar::after {
-  inset: 0 -40px;
-  z-index: 3;
-  background-image: var(--skate-jump), var(--skate-ollie), var(--skate-cruise);
-  background-size: auto calc(var(--pick-0) * 30px), auto calc(var(--pick-1) * 30px), auto calc(var(--pick-2) * 30px);
-  background-position: calc(var(--trip) * 100%) center, calc(var(--snoopy-react) * 100%) center, calc(var(--snoopy-react) * 100%) center;
-}
-
 @media not -moz-pref("snoopy.easter-eggs.off") {
   @media not -moz-pref("snoopy.animations.paused") {
     @media (prefers-reduced-motion: no-preference) {
-      #vertical-tabs::before,
-      #nav-bar::after {
+      #vertical-tabs::before {
         content: "";
       }
 
-      sidebar-main[expanded] > #vertical-tabs:hover::before,
-      #nav-bar:hover::after {
+      sidebar-main[expanded] > #vertical-tabs:hover::before {
         animation-play-state: running;
       }
 
       /* Only presses on the scene itself (no tab or button under the pointer). */
-      sidebar-main[expanded] > #vertical-tabs:active:not(:has(:active)),
-      #nav-bar:active:not(:has(:is(toolbarbutton, #urlbar, #urlbar-container + toolbarspring,
-                                   toolbaritem:not(#urlbar-container, #vertical-spacer)):active)) {
+      sidebar-main[expanded] > #vertical-tabs:active:not(:has(:active)) {
         &::before,
         &::after {
           --snoopy-react: 1;
@@ -399,9 +385,11 @@ sidebar-main[sidebar-ongoing-animations] > #vertical-tabs::after {
         }
       }
 
-      /* Woodstock's spot: its flexible space, or the URL bar's container without one
-         (where Snoopy's side counts too, since CSS can't tell the two apart). */
+      /* Snoopy's and Woodstock's spots: their flexible spaces, or the URL bar's container
+         without them (where either side plays both, since CSS can't tell the two apart). */
+      #stop-reload-button + toolbarspring:active,
       #urlbar-container + toolbarspring:active,
+      #urlbar-container:active:not(:has(#urlbar:active))::before,
       #urlbar-container:active:not(:has(#urlbar:active))::after {
         --snoopy-react: 1 !important;
         transition: none !important;

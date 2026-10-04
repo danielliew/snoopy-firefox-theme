@@ -49,6 +49,7 @@ ASSET_HEIGHTS = {
     "skate-cruise": 30,
     "charlie-dance": 35,
     "christmas-dancer": 28,
+    "snoopy-guitar": 35,
 }
 
 # README showcase renders, in px.
@@ -58,9 +59,10 @@ SHOWCASE_HEIGHTS = {"woodstock-cart": 90, "doghouse-scene": 160, "snoopy-dozing"
 PAPER = (251, 245, 230, 255)
 
 # Assets shown in their original colors by default instead of black-and-white line art.
-DEFAULT_COLOR = {"woodstock-cart", "charlie-dance", "christmas-dancer"}
-# Joe Cool's source art is already black and white, so he has no color version.
-NO_COLOR_VERSION = {"joe-cool"}
+DEFAULT_COLOR = {"woodstock-cart", "charlie-dance", "christmas-dancer", "snoopy-guitar"}
+# Assets with only their default style: Joe Cool's source art is already black and
+# white, and line art turns the guitar solo's gray shading into speckles.
+SINGLE_STYLE = {"joe-cool", "snoopy-guitar"}
 
 # about:config switch for each asset's other style: snoopy.color.<name> turns line art
 # into color, snoopy.ink.<name> turns a color default into line art. snoopy.color.all
@@ -88,12 +90,15 @@ ASSET_MIN_FRAME_MS = {
     "skate-ollie": 80,
     "skate-jump": 80,
     "skate-cruise": 80,
+    "snoopy-guitar": 160,
 }
-STABILIZE = {"snoopy-dozing"}
+STABILIZE = {"snoopy-dozing", "snoopy-guitar"}
 # Joe Cool cropped out of his Listening Lounge badge, above the animated lettering.
 JOE_BOX = (130, 40, 350, 282)
 # He only wobbles (hand-drawn line boil), so a few slow frames carry it.
 JOE_STEP, JOE_FRAME_MS = 13, 250
+# Snoopy's guitar solo, cut out of the pink Christmas-play stage.
+GUITAR_BOX = (140, 20, 380, 320)
 # Skateboard loops travel across their canvas; userChrome moves them instead.
 IN_PLACE = {"skate-ollie", "skate-jump", "skate-cruise"}
 # Ollie and cruise ride right then back left; keep the leftward half, the way Snoopy faces.
@@ -300,6 +305,37 @@ def joe_cool(frames):
     return out
 
 
+def snoopy_guitar(frames):
+    """Key out the pink stage and keep Snoopy, dropping cast members cut off at the crop edge."""
+    out = []
+    for f in frames:
+        f = f.convert("RGBA").crop(GUITAR_BOX)
+        r, g, _, _ = f.split()
+        stage = ImageChops.multiply(
+            ImageChops.subtract(r, g).point(lambda v: 255 if 28 <= v <= 110 else 0),
+            g.point(lambda v: 255 if v >= 90 else 0),
+        )
+        labels = ImageChops.invert(stage).filter(ImageFilter.MinFilter(3)).filter(ImageFilter.MaxFilter(3))
+        w, h = labels.size
+        count = 1
+        while count < 255 and (i := labels.tobytes().find(b"\xff")) >= 0:
+            ImageDraw.floodfill(labels, (i % w, i // w), count)
+            count += 1
+        hist = labels.histogram()
+        snoopy = max(range(1, count), key=hist.__getitem__)
+        sx0, sy0, sx1, sy1 = labels.point(lambda v: 255 if v == snoopy else 0).getbbox()
+        keep = []
+        for k in range(1, count):
+            part = labels.point(lambda v, k=k: 255 if v == k else 0)
+            x0, y0, x1, y1 = part.getbbox()
+            inside = sx0 <= x0 and sy0 <= y0 and x1 <= sx1 and y1 <= sy1 and 0 < x0 and 0 < y0 and x1 < w and y1 < h
+            if k == snoopy or (inside and hist[k] >= 30):
+                keep.append(k)
+        f.putalpha(labels.point(lambda v: 255 if v in keep else 0))
+        out.append(f)
+    return out
+
+
 def in_place(frames):
     """Re-center each frame horizontally so the sprite animates without traveling."""
     boxes = [f.getchannel("A").getbbox() or (0, 0, 1, 1) for f in frames]
@@ -316,7 +352,7 @@ def styles(name):
     """[(color, folder)] for an asset: its default style first, then the alternate if any."""
     default = name in DEFAULT_COLOR
     out = [(default, ASSETS)]
-    if name not in NO_COLOR_VERSION:
+    if name not in SINGLE_STYLE:
         out.append((not default, ASSETS / ("ink" if default else "color")))
     return out
 
@@ -358,7 +394,7 @@ def sprites_css():
         *blocks([(n, ASSETS) for n in ASSET_HEIGHTS]),
     ]
     for name in ASSET_HEIGHTS:
-        if name in NO_COLOR_VERSION:
+        if name in SINGLE_STYLE:
             continue
         default_color = name in DEFAULT_COLOR
         alt = styles(name)[1][1]
@@ -416,6 +452,8 @@ def all_outputs():
     joe_frames, joe_durations = load_frames(GIPHY / "joe-cool.gif")
     joe_frames = joe_cool(joe_frames[::JOE_STEP])
     sources["joe-cool"] = (joe_frames, [JOE_FRAME_MS] * len(joe_frames))
+    guitar_frames, guitar_durations = load_frames(GIPHY / "snoopy-guitar.gif")
+    sources["snoopy-guitar"] = (snoopy_guitar(guitar_frames), guitar_durations)
     for name in sorted(IN_PLACE):
         frames, durations = load_frames(GIPHY / f"{name}.gif")
         part = FRAME_SLICE.get(name, slice(None))

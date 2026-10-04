@@ -58,10 +58,11 @@ const bg = (sel, pseudo) => {
 const left = bg("#stop-reload-button + toolbarspring");
 const right = bg("#urlbar-container + toolbarspring");
 const height = (sel, pseudo) => parseFloat(style(sel, pseudo).height) || document.querySelector(sel).getBoundingClientRect().height;
+// Snoopy's and Woodstock's spots layer a click reaction (hidden until clicked) over the sprite.
+const lastUrl = v => v.slice(Math.max(0, v.lastIndexOf("url(")));
 return {
-  left: left !== "none" ? left : bg("#urlbar-container", "::before"),
-  // Woodstock's spot layers Charlie Brown (hidden until clicked) over the cart.
-  right: (v => v.slice(Math.max(0, v.lastIndexOf("url("))))(right !== "none" ? right : bg("#urlbar-container", "::after")),
+  left: lastUrl(left !== "none" ? left : bg("#urlbar-container", "::before")),
+  right: lastUrl(right !== "none" ? right : bg("#urlbar-container", "::after")),
   leftHeight: left !== "none" ? height("#stop-reload-button + toolbarspring") : height("#urlbar-container", "::before"),
   rightHeight: right !== "none" ? height("#urlbar-container + toolbarspring") : height("#urlbar-container", "::after"),
   inactive: document.documentElement.matches(":-moz-window-inactive"),
@@ -146,16 +147,20 @@ def run(label, extra_prefs, failures, dark=False):
         dog = m.execute_script("const r = document.getElementById('vertical-tabs').getBoundingClientRect(); return [r.left + r.width / 2, r.bottom - 40];")
         click(*dog)
         expect("clicking the doghouse plays a reaction", reacting("#vertical-tabs", "::before"), True, True)
-        click(*m.execute_script(center, script_args=["#back-button"]))
-        expect("clicking a toolbar button doesn't send a skater", reacting("#nav-bar", "::after"), False, True)
         # Snoopy's spot: a flexible space, or the start of the URL bar's container.
-        open_space = m.execute_script("""
+        snoopy = m.execute_script("""
           const spring = document.querySelector('#stop-reload-button + toolbarspring');
           const r = (spring || document.getElementById('urlbar-container')).getBoundingClientRect();
-          return [spring ? r.left + r.width / 2 : r.left + 30, r.top + r.height / 2];
+          return [spring ? r.left + r.width / 2 : r.left + 30, r.top + r.height / 2, !!spring];
         """)
-        click(*open_space)
-        expect("clicking open toolbar space sends a skater", reacting("#nav-bar", "::after"), True, True)
+        snoopy_spot = ("#stop-reload-button + toolbarspring", None) if snoopy[2] else ("#urlbar-container", "::before")
+        click(*m.execute_script(center, script_args=["#back-button"]))
+        expect("clicking a toolbar button doesn't start the guitar solo", reacting(*snoopy_spot), False, True)
+        click(snoopy[0], snoopy[1])
+        guitar = m.execute_script("return getComputedStyle(document.querySelector(arguments[0]), arguments[1]).backgroundImage;",
+                                  script_args=list(snoopy_spot))
+        expect("clicking toolbar Snoopy starts the guitar solo",
+               (reacting(*snoopy_spot), "snoopy-guitar.png" in guitar), (True, True), True)
         woodstock = m.execute_script("""
           const spring = document.querySelector('#urlbar-container + toolbarspring');
           const r = (spring || document.getElementById('urlbar-container')).getBoundingClientRect();
