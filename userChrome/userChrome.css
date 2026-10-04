@@ -326,7 +326,7 @@ sidebar-main[sidebar-ongoing-animations] > #vertical-tabs::after {
   }
 }
 
-/* Easter egg: clicking the doghouse plays a happy dance, Joe Cool, or a skater
+/* Easter egg: clicking the doghouse plays a happy dance, Joe Cool's Listening Lounge, or a skater
    crossing the sidebar; clicking reading Snoopy brings a Christmas dancer; clicking
    toolbar Snoopy starts a guitar solo; clicking Woodstock makes Charlie Brown dance.
    Layers are hidden with zero height until --snoopy-pick selects them. */
@@ -349,8 +349,8 @@ sidebar-main[sidebar-ongoing-animations] > #vertical-tabs::after {
   transition: --snoopy-react var(--react-duration) linear, --snoopy-pick 0s var(--react-duration);
   inset: auto 0 0;
   height: var(--sidebar-scene-room);
-  background-image: var(--snoopy-dance), var(--joe-cool), var(--skate-jump), var(--christmas-dancer);
-  background-size: auto calc(var(--pick-0) * 35px), auto calc(var(--pick-1) * 35px), auto calc(var(--pick-2) * 30px),
+  background-image: var(--snoopy-dance), var(--joe-cool-badge), var(--skate-jump), var(--christmas-dancer);
+  background-size: auto calc(var(--pick-0) * 35px), auto calc(var(--pick-1) * 83px), auto calc(var(--pick-2) * 30px),
     auto calc(var(--pick-3) * 28px);
   background-position: center bottom 4px, center bottom 4px, left calc(var(--trip) * 100%) bottom 4px, center bottom 4px;
 }

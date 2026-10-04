@@ -15,6 +15,7 @@
   --charlie-dance: url("assets/charlie-dance.png");
   --christmas-dancer: url("assets/christmas-dancer.png");
   --snoopy-guitar: url("assets/snoopy-guitar.png");
+  --joe-cool-badge: url("assets/joe-cool-badge.png");
 }
 @media -moz-pref("snoopy.animations.slow") {
   :root {
@@ -32,6 +33,7 @@
     --charlie-dance: url("assets/slow/charlie-dance.png");
     --christmas-dancer: url("assets/slow/christmas-dancer.png");
     --snoopy-guitar: url("assets/slow/snoopy-guitar.png");
+    --joe-cool-badge: url("assets/slow/joe-cool-badge.png");
   }
 }
 @media -moz-pref("snoopy.animations.paused"), (prefers-reduced-motion: reduce) {
@@ -50,6 +52,7 @@
     --charlie-dance: url("assets/still/charlie-dance.png");
     --christmas-dancer: url("assets/still/christmas-dancer.png");
     --snoopy-guitar: url("assets/still/snoopy-guitar.png");
+    --joe-cool-badge: url("assets/still/joe-cool-badge.png");
   }
 }
 

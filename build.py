@@ -50,6 +50,7 @@ ASSET_HEIGHTS = {
     "charlie-dance": 35,
     "christmas-dancer": 28,
     "snoopy-guitar": 35,
+    "joe-cool-badge": 83,
 }
 
 # README showcase renders, in px.
@@ -59,10 +60,11 @@ SHOWCASE_HEIGHTS = {"woodstock-cart": 90, "doghouse-scene": 160, "snoopy-dozing"
 PAPER = (251, 245, 230, 255)
 
 # Assets shown in their original colors by default instead of black-and-white line art.
-DEFAULT_COLOR = {"woodstock-cart", "charlie-dance", "christmas-dancer", "snoopy-guitar"}
+DEFAULT_COLOR = {"woodstock-cart", "charlie-dance", "christmas-dancer", "snoopy-guitar", "joe-cool-badge"}
 # Assets with only their default style: Joe Cool's source art is already black and
-# white, and line art turns the guitar solo's gray shading into speckles.
-SINGLE_STYLE = {"joe-cool", "snoopy-guitar"}
+# white apart from the badge's red lettering, and line art turns the guitar solo's
+# gray shading into speckles.
+SINGLE_STYLE = {"joe-cool", "joe-cool-badge", "snoopy-guitar"}
 
 # about:config switch for each asset's other style: snoopy.color.<name> turns line art
 # into color, snoopy.ink.<name> turns a color default into line art. snoopy.color.all
@@ -91,8 +93,11 @@ ASSET_MIN_FRAME_MS = {
     "skate-jump": 80,
     "skate-cruise": 80,
     "snoopy-guitar": 160,
+    "joe-cool-badge": 130,
 }
 STABILIZE = {"snoopy-dozing", "snoopy-guitar"}
+# Palette size for color assets with few inks (default 64).
+ASSET_COLORS = {"joe-cool-badge": 32}
 # Joe Cool cropped out of his Listening Lounge badge, above the animated lettering.
 JOE_BOX = (130, 40, 350, 282)
 # He only wobbles (hand-drawn line boil), so a few slow frames carry it.
@@ -112,7 +117,7 @@ SPEEDS = ("normal", "slow", "still")
 
 # Size budgets checked by `uv run build.py check` (KB).
 BUDGET_ASSET_KB = 120
-BUDGET_ASSETS_TOTAL_KB = 1500
+BUDGET_ASSETS_TOTAL_KB = 1750
 BUDGET_XPI_KB = 100
 
 
@@ -281,7 +286,7 @@ def render_asset(name, frames, durations, height, color=None):
     box = union_bbox(frames)
     frames = fit_height([f.crop(box) for f in frames], height)
     if color:
-        frames = flatten_colors(frames)
+        frames = flatten_colors(frames, ASSET_COLORS.get(name, 64))
     elif name in LINE_ART:
         frames = [Image.merge("RGBA", (*[f.convert("L")] * 3, f.getchannel("A"))) for f in frames]
     else:
@@ -302,6 +307,23 @@ def joe_cool(frames):
         f = Image.composite(Image.new("RGBA", f.size, (255, 255, 255, 255)), f, red)
         f.putalpha(ImageChops.multiply(f.getchannel("A"), inside))
         out.append(f.crop(JOE_BOX))
+    return out
+
+
+def _red(frame):
+    saturated = frame.convert("RGB").convert("HSV").getchannel("S").point(lambda v: 255 if v > 120 else 0)
+    return ImageChops.multiply(saturated, frame.getchannel("A").point(lambda v: 255 if v > 128 else 0))
+
+
+def joe_badge(frames):
+    """The whole badge: the red lettering animates every frame, the line boil at Joe's sprite pace."""
+    white = Image.new("RGBA", frames[0].size, (255, 255, 255, 255))
+    out = []
+    for i, f in enumerate(frames):
+        held = frames[i - i % JOE_STEP].convert("RGBA")
+        lettering = ImageChops.multiply(_red(held).filter(ImageFilter.MaxFilter(5)), held.getchannel("A"))
+        held = Image.composite(white, held, lettering)
+        out.append(Image.composite(f.convert("RGBA"), held, _red(f).filter(ImageFilter.MaxFilter(3))))
     return out
 
 
@@ -450,6 +472,7 @@ def all_outputs():
                  "charlie-dance", "christmas-dancer"):
         sources[name] = load_frames(GIPHY / f"{name}.gif")
     joe_frames, joe_durations = load_frames(GIPHY / "joe-cool.gif")
+    sources["joe-cool-badge"] = (joe_badge(joe_frames), joe_durations)
     joe_frames = joe_cool(joe_frames[::JOE_STEP])
     sources["joe-cool"] = (joe_frames, [JOE_FRAME_MS] * len(joe_frames))
     guitar_frames, guitar_durations = load_frames(GIPHY / "snoopy-guitar.gif")
