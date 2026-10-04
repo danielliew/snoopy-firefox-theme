@@ -396,12 +396,10 @@ def run(label, extra_prefs, failures, dark=False):
           const doc = frame.contentDocument, win = doc.defaultView;
           const snoopy = win.getComputedStyle(doc.getElementById('toolbox-buttons-end'), '::before');
           return { tabbar: win.getComputedStyle(doc.querySelector('.devtools-tabbar')).backgroundColor,
-                   snoopy: snoopy.backgroundImage, filter: snoopy.filter };
+                   snoopy: snoopy.backgroundImage };
         """) or {}
         expect("DevTools tab bar has typing Snoopy", sprite(devtools.get("snoopy", "none")), "snoopy-typing.png", True)
-        if dark:
-            expect("DevTools Snoopy is green-screen in dark mode", devtools.get("filter", ""), "hue-rotate")
-        else:
+        if not dark:
             expect("Paper DevTools tab bar", devtools.get("tabbar"), PAPER, True)
         m.delete_session()
     finally:

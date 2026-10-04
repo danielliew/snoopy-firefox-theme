@@ -24,8 +24,7 @@
   }
 }
 
-/* ---------- Snoopy at his typewriter in the toolbox tab bar ----------
-   Ink in light mode; a green-screen terminal in dark mode, with a blinking cursor. */
+/* ---------- Snoopy at his typewriter in the toolbox tab bar, with a blinking cursor ---------- */
 
 @-moz-document url("about:devtools-toolbox") {
   #toolbox-buttons-end::before {
@@ -37,17 +36,10 @@
     padding-inline: 38px 4px;
     align-self: stretch;
     font: 11px ui-monospace, Menlo, monospace;
-    /* Ink in both modes; the dark-mode filter turns it green with Snoopy. */
-    color: #37352f;
+    color: light-dark(#37352f, #ffffff);
     background: url("assets/snoopy-typing.png") no-repeat left center / auto 22px;
     animation: snoopy-cursor 1.1s steps(1) infinite;
     pointer-events: none;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    #toolbox-buttons-end::before {
-      filter: invert(1) sepia(1) saturate(8) hue-rotate(70deg) drop-shadow(0 0 2px rgba(57, 255, 122, 0.5));
-    }
   }
 
   @keyframes snoopy-cursor {
