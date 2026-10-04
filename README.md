@@ -115,7 +115,7 @@ Need the userChrome extras.
 
 Also need the userChrome extras. These live in `userContent.css`, since Firefox shows its own pages as content that `userChrome.css` doesn't reach.
 
-- **New tab and home**: paper background in light mode, and Snoopy's doghouse, in full color, in place of the Firefox logo.
+- **New tab and home**: paper background in light mode, and Snoopy's doghouse, in full color, in place of the Firefox logo, captioned "a Snoopy Firefox".
 - **Error pages** ("Server Not Found", offline, and the like): paper background in light mode, and Charlie Brown getting knocked over by a line drive in place of the fox. Good grief.
 - **Reader View**: paper and ink in the light color scheme, with Snoopy reading above the title (also on sepia and gray). Dark and custom schemes keep Firefox's colors.
 - **PDF viewer**: paper toolbar and sidebar around the white pages in light mode.

@@ -71,6 +71,29 @@
     background: url("assets/color/doghouse-scene.png") no-repeat center / contain !important;
   }
 
+  .logo-and-wordmark .wordmark {
+    display: inline-flex !important;
+    align-items: center;
+    width: auto !important;
+    height: 64px !important;
+    margin-inline-start: 16px !important;
+    background: none !important;
+    color: var(--newtab-wordmark-color, #37352f);
+    font: 700 28px/1 ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+  }
+
+  .logo-and-wordmark .wordmark::after {
+    content: "a Snoopy Firefox";
+  }
+
+  @media (prefers-color-scheme: light) {
+    .logo-and-wordmark .wordmark {
+      color: #37352f;
+    }
+  }
+
   @media -moz-pref("snoopy.animations.paused"), (prefers-reduced-motion: reduce) {
     .logo-and-wordmark .logo {
       background-image: url("assets/color/still/doghouse-scene.png") !important;
