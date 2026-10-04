@@ -24,6 +24,12 @@ Firefox theme based on [Snoopy (animated)](https://addons.mozilla.org/firefox/ad
     <td align="center"><img src="docs/showcase/skate-jump.png" height="120" alt="Snoopy jumping on his skateboard"><br><sub>Skating across a new tab</sub></td>
     <td align="center"><img src="docs/showcase/skate-cruise.png" height="120" alt="Snoopy cruising on his skateboard"><br><sub>Skating across a new tab</sub></td>
   </tr>
+  <tr>
+    <td align="center"><img src="docs/showcase/snoopy-guitar.png" height="120" alt="Snoopy playing a red electric guitar"><br><sub>Guitar solo, hidden easter egg</sub></td>
+    <td align="center"><img src="docs/showcase/joe-cool-badge.png" height="120" alt="Joe Cool's Listening Lounge badge with animated red lettering"><br><sub>Joe Cool's Listening Lounge, hidden easter egg</sub></td>
+    <td align="center"><img src="docs/showcase/charlie-dance.png" height="120" alt="Charlie Brown dancing"><br><sub>Charlie Brown dancing, hidden easter egg</sub></td>
+    <td align="center"><img src="docs/showcase/christmas-dancer.png" height="120" alt="A Peanuts kid dancing from A Charlie Brown Christmas"><br><sub>Christmas dancer, hidden easter egg</sub></td>
+  </tr>
 </table>
 
 It has two parts:
