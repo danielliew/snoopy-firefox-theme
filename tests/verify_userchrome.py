@@ -6,12 +6,15 @@ Usage: uv run tests/verify_userchrome.py [path/to/firefox]
 """
 
 import base64
+import functools
+import http.server
 import io
 import json
 import shutil
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 from pathlib import Path
 
@@ -84,6 +87,11 @@ def sprite(value):
     return value.split("assets/", 1)[1].split('"')[0].rstrip(")")
 
 
+class QuietHandler(http.server.SimpleHTTPRequestHandler):
+    def log_message(self, *args):
+        pass
+
+
 def run(label, extra_prefs, failures, dark=False):
     print(f"\n== {label} ==")
     profile = Path(tempfile.mkdtemp(prefix="snoopy-test-"))
@@ -94,6 +102,20 @@ def run(label, extra_prefs, failures, dark=False):
     # A real copy: the macOS content sandbox won't follow a link out of the profile,
     # so userContent.css wouldn't reach web pages.
     shutil.copytree(ROOT / "userChrome", profile / "chrome")
+
+    # Reader View and pdf.js need pages served over http.
+    pages = profile / "site"
+    pages.mkdir()
+    (pages / "article.html").write_text(
+        "<!doctype html><title>Happiness</title><article><h1>Happiness is a warm puppy</h1>"
+        + "<p>Happiness is a warm puppy. " * 300 + "</article>"
+    )
+    Image.new("RGB", (612, 792), "white").save(pages / "doc.pdf")
+    handler = functools.partial(QuietHandler, directory=str(pages))
+    server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), handler)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    site = f"http://127.0.0.1:{server.server_port}"
+
     proc = subprocess.Popen(
         [FIREFOX, "--headless", "--marionette", "--remote-allow-system-access", "--no-remote",
          "--profile", str(profile)],
@@ -406,6 +428,54 @@ def run(label, extra_prefs, failures, dark=False):
         m.set_context(m.CONTEXT_CHROME)
         expect("Charlie Brown on the error page", sprite(error_page.split(",")[0]), "charlie-line-drive.png", True)
 
+        m.set_context(m.CONTEXT_CONTENT)
+        m.navigate(f"{site}/article.html")
+        m.navigate(f"about:reader?url={site}/article.html")
+        time.sleep(2)
+        reader = m.execute_script("""
+          const header = document.querySelector('.reader-header');
+          return { bg: getComputedStyle(document.body).backgroundColor,
+                   snoopy: header ? getComputedStyle(header, '::before').backgroundImage : 'no header' };
+        """)
+        if dark:
+            expect("dark Reader View keeps Firefox's colors", reader["bg"] != PAPER, True, True)
+        else:
+            expect("Paper Reader View", reader["bg"], PAPER, True)
+            expect("Snoopy reads along in Reader View", sprite(reader["snoopy"]), "snoopy-reading.png", True)
+
+        m.navigate(f"{site}/doc.pdf")
+        time.sleep(2)
+        pdf_toolbar = m.execute_script("""
+          const bar = document.getElementById('toolbarContainer');
+          return bar ? getComputedStyle(bar).backgroundColor : 'no pdf.js toolbar';
+        """)
+        if dark:
+            expect("dark PDF viewer keeps Firefox's colors", pdf_toolbar != PAPER, True, True)
+        else:
+            expect("Paper PDF viewer toolbar", pdf_toolbar, PAPER, True)
+        m.set_context(m.CONTEXT_CHROME)
+
+        if not dark:
+            border = m.execute_script("return getComputedStyle(document.getElementById('appMenu-popup')).getPropertyValue('--panel-border-color').trim();")
+            expect("Ink edge on Firefox's menus", border, "#37352f", True)
+
+        m.execute_script("window.snoopyPianoTab = gBrowser.addTrustedTab('about:blank');")
+        time.sleep(1)
+        schroeder = m.execute_script("""
+          const sidebar = document.querySelector('sidebar-main'), wasExpanded = sidebar.hasAttribute('expanded');
+          sidebar.toggleAttribute('expanded', true);
+          const tab = snoopyPianoTab, content = tab.querySelector('.tab-content');
+          tab.setAttribute('soundplaying', 'true');
+          const playing = getComputedStyle(content).backgroundImage;
+          tab.setAttribute('muted', 'true');
+          const muted = getComputedStyle(content).backgroundImage;
+          gBrowser.removeTab(tab);
+          sidebar.toggleAttribute('expanded', wasExpanded);
+          return [playing, muted];
+        """)
+        expect("Schroeder plays beside an expanded tab playing sound", sprite(schroeder[0]), "schroeder-piano.png", True)
+        expect("muting sends Schroeder away", schroeder[1], "none", True)
+
         m.execute_script("gBrowser.getFindBar().then(f => f.open());")
         time.sleep(0.5)
         zigzag = m.execute_script("return getComputedStyle(gBrowser.getCachedFindBar()).backgroundImage;")
@@ -413,6 +483,8 @@ def run(label, extra_prefs, failures, dark=False):
             expect("dark mode skips the find bar zigzag", zigzag, "none", True)
         else:
             expect("Zigzag on find bar", zigzag, "svg")
+        lucy = m.execute_script("return getComputedStyle(gBrowser.getCachedFindBar(), '::after').backgroundImage;")
+        expect("Lucy's booth on the find bar", sprite(lucy), "lucy-booth.png", True)
 
         m.execute_script("""
           const { require } = ChromeUtils.importESModule("resource://devtools/shared/loader/Loader.sys.mjs");
@@ -436,6 +508,7 @@ def run(label, extra_prefs, failures, dark=False):
     finally:
         proc.terminate()
         proc.wait(timeout=20)
+        server.shutdown()
         shutil.rmtree(profile, ignore_errors=True)
 
 

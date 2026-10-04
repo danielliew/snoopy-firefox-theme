@@ -1,6 +1,60 @@
-/* Snoopy Vertical: Firefox's own pages (DevTools, new tab, error pages). Firefox loads
-   these as content pages, so userChrome.css doesn't reach them. Everything here is
-   scoped to those URLs and leaves web pages alone. */
+/* Snoopy Vertical: Firefox's own pages (DevTools, new tab, error pages, Reader View,
+   PDFs). Firefox loads these as content pages, so userChrome.css doesn't reach them.
+   Web pages only get the scrollbar style, and only where the site sets none. */
+
+/* ---------- Scrollbars: Notion's thin warm gray (sites' own styles win) ---------- */
+
+:root {
+  scrollbar-color: light-dark(#d3d1cb, #5b5a56) transparent;
+}
+
+* {
+  scrollbar-width: thin;
+}
+
+/* ---------- Reader View: paper and ink in the light scheme, with Snoopy reading ---------- */
+
+@-moz-document url-prefix("about:reader") {
+  body.light {
+    --main-background: #fbf5e6 !important;
+    --main-foreground: #37352f !important;
+    --toolbar-button-background-hover: rgba(55, 53, 47, 0.08) !important;
+    --toolbar-button-background-active: rgba(55, 53, 47, 0.14) !important;
+    --selected-background: rgba(246, 197, 68, 0.4) !important;
+  }
+
+  body:is(.light, .sepia, .gray) .reader-header::before {
+    content: "";
+    display: block;
+    width: 47px;
+    height: 36px;
+    margin-block-end: 12px;
+    background: url("assets/snoopy-reading.png") no-repeat left bottom / contain;
+  }
+
+  @media -moz-pref("snoopy.animations.paused"), (prefers-reduced-motion: reduce) {
+    body:is(.light, .sepia, .gray) .reader-header::before {
+      background-image: url("assets/still/snoopy-reading.png");
+    }
+  }
+}
+
+/* ---------- PDF viewer: paper toolbar and sidebar around white pages ----------
+   PDFs keep their own address, so this keys off pdf.js's layout. */
+
+@media (prefers-color-scheme: light) {
+  :root:has(> body > #outerContainer > #mainContainer) {
+    --main-color: #37352f !important;
+    --body-bg-color: #efe6cf !important;
+    --toolbar-bg-color: #fbf5e6 !important;
+    --toolbar-border-color: #e8dcc0 !important;
+    --sidebar-bg-color: #fbf5e6 !important;
+    --field-bg-color: #ffffff !important;
+    --doorhanger-bg-color: #ffffff !important;
+    --scrollbar-color: #d3d1cb !important;
+    --scrollbar-bg-color: transparent !important;
+  }
+}
 
 /* ---------- New tab and home: paper, and Snoopy's doghouse for the Firefox logo ---------- */
 

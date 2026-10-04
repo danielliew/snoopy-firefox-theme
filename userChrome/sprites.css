@@ -20,6 +20,8 @@
   --woodstock-chirp: url("assets/woodstock-chirp.png");
   --charlie-line-drive: url("assets/charlie-line-drive.png");
   --crowded: url("assets/crowded.png");
+  --schroeder-piano: url("assets/schroeder-piano.png");
+  --lucy-booth: url("assets/lucy-booth.png");
 }
 @media -moz-pref("snoopy.animations.slow") {
   :root {
@@ -42,6 +44,8 @@
     --woodstock-chirp: url("assets/slow/woodstock-chirp.png");
     --charlie-line-drive: url("assets/slow/charlie-line-drive.png");
     --crowded: url("assets/slow/crowded.png");
+    --schroeder-piano: url("assets/slow/schroeder-piano.png");
+    --lucy-booth: url("assets/slow/lucy-booth.png");
   }
 }
 @media -moz-pref("snoopy.animations.paused"), (prefers-reduced-motion: reduce) {
@@ -65,6 +69,8 @@
     --woodstock-chirp: url("assets/still/woodstock-chirp.png");
     --charlie-line-drive: url("assets/still/charlie-line-drive.png");
     --crowded: url("assets/still/crowded.png");
+    --schroeder-piano: url("assets/still/schroeder-piano.png");
+    --lucy-booth: url("assets/still/lucy-booth.png");
   }
 }
 

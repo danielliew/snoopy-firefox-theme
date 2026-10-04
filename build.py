@@ -55,6 +55,8 @@ ASSET_HEIGHTS = {
     "woodstock-chirp": 26,
     "charlie-line-drive": 100,
     "crowded": 83,
+    "schroeder-piano": 26,
+    "lucy-booth": 44,
 }
 
 # README showcase renders, in px.
@@ -65,12 +67,13 @@ PAPER = (251, 245, 230, 255)
 
 # Assets shown in their original colors by default instead of black-and-white line art.
 DEFAULT_COLOR = {"woodstock-cart", "charlie-dance", "christmas-dancer", "snoopy-guitar", "joe-cool-badge",
-                 "flying-ace", "woodstock-chirp", "charlie-line-drive", "crowded"}
+                 "flying-ace", "woodstock-chirp", "charlie-line-drive", "crowded", "schroeder-piano",
+                 "lucy-booth"}
 # Assets with only their default style: Joe Cool's source art is already black and
 # white apart from the badge's red lettering, line art turns the guitar solo's and
 # Flying Ace's cut-out edges into speckles, and the rest are single-purpose extras.
 SINGLE_STYLE = {"joe-cool", "joe-cool-badge", "snoopy-guitar", "flying-ace", "woodstock-chirp",
-                "charlie-line-drive", "crowded"}
+                "charlie-line-drive", "crowded", "schroeder-piano", "lucy-booth"}
 
 # about:config switch for each asset's other style: snoopy.color.<name> turns line art
 # into color, snoopy.ink.<name> turns a color default into line art. snoopy.color.all
@@ -104,16 +107,22 @@ ASSET_MIN_FRAME_MS = {
     "woodstock-chirp": 120,
     "crowded": 260,
     "charlie-line-drive": 120,
+    "schroeder-piano": 160,
+    "lucy-booth": 280,
 }
 STABILIZE = {"snoopy-dozing", "snoopy-guitar", "flying-ace"}
 # Palette size for color assets with few inks (default 64).
-ASSET_COLORS = {"joe-cool-badge": 32, "crowded": 24}
+ASSET_COLORS = {"joe-cool-badge": 32, "crowded": 24, "lucy-booth": 24}
 # Joe Cool cropped out of his Listening Lounge badge, above the animated lettering.
 JOE_BOX = (130, 40, 350, 282)
 # He only wobbles (hand-drawn line boil), so a few slow frames carry it.
 JOE_STEP, JOE_FRAME_MS = 13, 250
 # Snoopy's guitar solo, cut out of the pink Christmas-play stage.
 GUITAR_BOX = (140, 20, 380, 320)
+# Schroeder at his toy piano on a plain pink backdrop, from where he starts playing.
+SCHROEDER_BOX, SCHROEDER_FRAMES = (40, 40, 368, 336), slice(35, None)
+# Lucy's psychiatric booth, above the sticker's LUCY lettering.
+LUCY_BOX = (128, 30, 374, 334)
 # Skateboard loops travel across their canvas; userChrome moves them instead.
 IN_PLACE = {"skate-ollie", "skate-jump", "skate-cruise"}
 # Ollie and cruise ride right then back left; keep the leftward half, the way Snoopy faces.
@@ -127,7 +136,7 @@ SPEEDS = ("normal", "slow", "still")
 
 # Size budgets checked by `uv run build.py check` (KB).
 BUDGET_ASSET_KB = 120
-BUDGET_ASSETS_TOTAL_KB = 2400
+BUDGET_ASSETS_TOTAL_KB = 2600
 BUDGET_XPI_KB = 100
 
 
@@ -392,16 +401,37 @@ def flying_ace(frames):
     return out
 
 
+def _pink_stage(f, bluish=False):
+    """The pink backdrop; bluish also requires blue over green, which spares skin tones."""
+    r, g, b, _ = f.split()
+    stage = ImageChops.multiply(
+        ImageChops.subtract(r, g).point(lambda v: 255 if 28 <= v <= 110 else 0),
+        g.point(lambda v: 255 if v >= 90 else 0),
+    )
+    if bluish:
+        stage = ImageChops.multiply(stage, ImageChops.subtract(b, g).point(lambda v: 255 if v >= 8 else 0))
+    return stage
+
+
+def schroeder_piano(frames):
+    """Key out the pink backdrop, keeping Schroeder and his piano but not stray specks."""
+    out = []
+    for f in frames:
+        f = f.convert("RGBA").crop(SCHROEDER_BOX)
+        labels, count = _label(ImageChops.invert(_pink_stage(f, bluish=True)).filter(ImageFilter.MinFilter(3)).filter(ImageFilter.MaxFilter(3)))
+        hist = labels.histogram()
+        keep = {k for k in range(1, count) if hist[k] >= 200}
+        f.putalpha(labels.point(lambda v: 255 if v in keep else 0))
+        out.append(f)
+    return out
+
+
 def snoopy_guitar(frames):
     """Key out the pink stage and keep Snoopy, dropping cast members cut off at the crop edge."""
     out = []
     for f in frames:
         f = f.convert("RGBA").crop(GUITAR_BOX)
-        r, g, _, _ = f.split()
-        stage = ImageChops.multiply(
-            ImageChops.subtract(r, g).point(lambda v: 255 if 28 <= v <= 110 else 0),
-            g.point(lambda v: 255 if v >= 90 else 0),
-        )
+        stage = _pink_stage(f)
         labels, count = _label(ImageChops.invert(stage).filter(ImageFilter.MinFilter(3)).filter(ImageFilter.MaxFilter(3)))
         w, h = labels.size
         hist = labels.histogram()
@@ -540,6 +570,10 @@ def all_outputs():
     sources["snoopy-guitar"] = (snoopy_guitar(guitar_frames), guitar_durations)
     ace_frames, ace_durations = load_frames(GIPHY / "flying-ace.gif")
     sources["flying-ace"] = (flying_ace(ace_frames), ace_durations)
+    piano_frames, piano_durations = load_frames(GIPHY / "schroeder-piano.gif")
+    sources["schroeder-piano"] = (schroeder_piano(piano_frames[SCHROEDER_FRAMES]), piano_durations[SCHROEDER_FRAMES])
+    lucy_frames, lucy_durations = load_frames(GIPHY / "lucy-booth.gif")
+    sources["lucy-booth"] = ([f.crop(LUCY_BOX) for f in lucy_frames], lucy_durations)
     for name in sorted(IN_PLACE):
         frames, durations = load_frames(GIPHY / f"{name}.gif")
         part = FRAME_SLICE.get(name, slice(None))

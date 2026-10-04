@@ -100,6 +100,48 @@
     padding-top: 6px !important;
     border-top: none !important;
   }
+
+  /* Firefox's own menus (main menu, extensions, downloads) as white Notion popovers
+     with an ink edge. Context and dropdown menus are native on macOS. */
+  panel[type="arrow"] {
+    --panel-background-color: #ffffff !important;
+    --panel-text-color: var(--peanuts-ink) !important;
+    --panel-border-color: var(--peanuts-ink) !important;
+    --panel-border-radius: 8px !important;
+    --panel-menuitem-border-radius: 4px !important;
+    --panel-separator-color: rgba(55, 53, 47, 0.09) !important;
+    --button-background-color-menu-hover: rgba(55, 53, 47, 0.06) !important;
+    --button-text-color-menu-hover: var(--peanuts-ink) !important;
+  }
+
+  /* Notion's warm-gray scrollbars; inherited into the sidebar and panels. */
+  :root {
+    scrollbar-color: #d3d1cb transparent;
+  }
+}
+
+/* Easter egg: Lucy's psychiatric booth at the end of the find bar. It can't poke up
+   over the page, which paints above the browser's own elements. */
+@media not -moz-pref("snoopy.easter-eggs.off") {
+  findbar {
+    position: relative;
+  }
+
+  findbar::after {
+    content: "";
+    position: absolute;
+    inset-inline-end: 44px;
+    inset-block: 1px;
+    width: 40px;
+    background: var(--lucy-booth) no-repeat center bottom / contain;
+    pointer-events: none;
+  }
+
+  @media (max-width: 700px) {
+    findbar::after {
+      display: none;
+    }
+  }
 }
 
 .tabbrowser-tab[selected] .tab-label {
@@ -133,7 +175,8 @@
      snoopy.animations.slow      half-speed animations
      snoopy.animations.paused    still sprites (also on with macOS Reduce motion)
      snoopy.easter-eggs.off      no sleeping, dozing, Joe Cool, dancing, skating,
-                                 Flying Ace, chirping Woodstock, or crowded sidebar
+                                 Flying Ace, chirping Woodstock, crowded sidebar,
+                                 Schroeder, or Lucy
      snoopy.sidebar.hide-scene   no doghouse or reading Snoopy in the tab sidebar
      snoopy.color.all            every animation in color
      snoopy.color.<name>         one animation in color: typing, sleeping, dance,
@@ -350,6 +393,15 @@ sidebar-main[sidebar-ongoing-animations] > #vertical-tabs::after {
         visibility: visible;
       }
     }
+  }
+}
+
+/* Easter egg: Schroeder plays along at the end of expanded tabs that are playing
+   sound, stepping aside on hover for the close button. */
+@media not -moz-pref("snoopy.easter-eggs.off") {
+  #tabbrowser-tabs[orient="vertical"][expanded] .tabbrowser-tab[soundplaying]:not([muted], :hover) > .tab-stack > .tab-content {
+    padding-inline-end: 40px !important;
+    background: var(--schroeder-piano) no-repeat right 8px center / auto 26px;
   }
 }
 

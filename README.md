@@ -36,14 +36,18 @@ Firefox theme based on [Snoopy (animated)](https://addons.mozilla.org/firefox/ad
     <td align="center"><img src="docs/showcase/crowded.png" height="120" alt="It's getting crowded in here, with lots of Snoopys"><br><sub>It's getting crowded, at 50 tabs</sub></td>
     <td align="center"><img src="docs/showcase/charlie-line-drive.png" height="120" alt="Charlie Brown knocked over by a line drive"><br><sub>Good grief, on error pages</sub></td>
   </tr>
+  <tr>
+    <td align="center"><img src="docs/showcase/schroeder-piano.png" height="120" alt="Schroeder playing his toy piano"><br><sub>Schroeder, beside tabs playing sound</sub></td>
+    <td align="center"><img src="docs/showcase/lucy-booth.png" height="120" alt="Lucy in her psychiatric help booth: The Doctor Is In"><br><sub>The Doctor Is In, on the find bar</sub></td>
+  </tr>
 </table>
 
 It has two parts:
 
 - **Theme** (the link above): Peanuts colors (paper tab sidebar, inked selected tab and URL bar) and a black-and-white Snoopy animation. Signed by Mozilla and updates automatically.
-- **userChrome extras** (optional): CSS for what themes can't do: sprites beside the URL bar, live settings, a Charlie Brown zigzag on the Cmd+F find bar, a paper toolbar with a white Notion-style URL bar, the page as a rounded card, a Peanuts new tab page and error pages, developer signals, matching DevTools, and easter eggs.
+- **userChrome extras** (optional): CSS for what themes can't do: sprites beside the URL bar, live settings, a Charlie Brown zigzag on the Cmd+F find bar, a paper toolbar with a white Notion-style URL bar and menus, the page as a rounded card, Notion-style scrollbars, a Peanuts new tab page, error pages, Reader View, and PDF viewer, developer signals, matching DevTools, and easter eggs.
 
-Peanuts characters and artwork © Peanuts Worldwide LLC. This is a non-commercial fan project. Animations from the official [Peanuts GIPHY account](https://giphy.com/peanuts): [sleeping](https://giphy.com/gifs/2rJw85F0vFJN0SLn3X), [happy dance](https://giphy.com/gifs/7xIMPoVGL2yzu), [doghouse](https://giphy.com/gifs/SvKTWdJjUDcklNyQ0k), [dozing](https://giphy.com/gifs/FDyb54WxxoKoMm98hG), [reading](https://giphy.com/gifs/C0L6c8KLHAiY0), [Joe Cool's Listening Lounge](https://giphy.com/gifs/JADkTNzBIj1QY4yJgy), skateboarding ([1](https://giphy.com/gifs/29p0L1NemEYmcPZmrZ), [2](https://giphy.com/gifs/LUzkvDDdeB8f8eB2QY), [3](https://giphy.com/gifs/aixTCnT8OrlCOxlBKJ)), Christmas dancing ([1](https://giphy.com/stickers/3L9j3SHxQkP1TM2jRJ), [2](https://giphy.com/stickers/aMa2UHCqoReRkwq7wc)), [guitar solo](https://giphy.com/gifs/13YkBrhLJdziXm), [Flying Ace](https://giphy.com/gifs/idM8O5ljn5o40), [Woodstock](https://giphy.com/stickers/jptAHfCnH8rSgVSjcE), [it's getting crowded](https://giphy.com/stickers/Mj6ph7ZnjUfb7NcyUx), [line drive](https://giphy.com/stickers/176RYtzz0pQid77UVA). The code is [MIT licensed](LICENSE); the artwork isn't covered by it.
+Peanuts characters and artwork © Peanuts Worldwide LLC. This is a non-commercial fan project. Animations from the official [Peanuts GIPHY account](https://giphy.com/peanuts): [sleeping](https://giphy.com/gifs/2rJw85F0vFJN0SLn3X), [happy dance](https://giphy.com/gifs/7xIMPoVGL2yzu), [doghouse](https://giphy.com/gifs/SvKTWdJjUDcklNyQ0k), [dozing](https://giphy.com/gifs/FDyb54WxxoKoMm98hG), [reading](https://giphy.com/gifs/C0L6c8KLHAiY0), [Joe Cool's Listening Lounge](https://giphy.com/gifs/JADkTNzBIj1QY4yJgy), skateboarding ([1](https://giphy.com/gifs/29p0L1NemEYmcPZmrZ), [2](https://giphy.com/gifs/LUzkvDDdeB8f8eB2QY), [3](https://giphy.com/gifs/aixTCnT8OrlCOxlBKJ)), Christmas dancing ([1](https://giphy.com/stickers/3L9j3SHxQkP1TM2jRJ), [2](https://giphy.com/stickers/aMa2UHCqoReRkwq7wc)), [guitar solo](https://giphy.com/gifs/13YkBrhLJdziXm), [Flying Ace](https://giphy.com/gifs/idM8O5ljn5o40), [Woodstock](https://giphy.com/stickers/jptAHfCnH8rSgVSjcE), [it's getting crowded](https://giphy.com/stickers/Mj6ph7ZnjUfb7NcyUx), [line drive](https://giphy.com/stickers/176RYtzz0pQid77UVA), [Schroeder](https://giphy.com/gifs/m21MSefe0wnHW), [Lucy's booth](https://giphy.com/stickers/XTOMWfzCojbgGOhkic). The code is [MIT licensed](LICENSE); the artwork isn't covered by it.
 
 ## Install
 
@@ -77,7 +81,7 @@ Themes can't have settings, so the userChrome extras read their own `about:confi
 | --- | --- |
 | `snoopy.animations.slow` | Animations (and the skate ride) play at half speed. |
 | `snoopy.animations.paused` | Every sprite holds still, and no skating. |
-| `snoopy.easter-eggs.off` | Snoopy keeps typing: no sleeping, dozing, Joe Cool, dancing, skating, Flying Ace, chirping Woodstock, or crowded sidebar. |
+| `snoopy.easter-eggs.off` | Snoopy keeps typing: no sleeping, dozing, Joe Cool, dancing, skating, Flying Ace, chirping Woodstock, crowded sidebar, Schroeder, or Lucy. |
 | `snoopy.sidebar.hide-scene` | No doghouse or reading Snoopy in the tab sidebar. |
 | `snoopy.color.all` | Every animation in full color instead of black-and-white line art. |
 | `snoopy.color.typing`, `.sleeping`, `.dance`, `.reading`, `.doghouse`, `.dozing`, `.skate` | Just that animation in color (for example `snoopy.color.doghouse`). |
@@ -104,13 +108,19 @@ Need the userChrome extras.
 - Snoopy becomes the World War I Flying Ace, goggles and scarf on, in private windows.
 - Woodstock chirps instead of pushing his cart while a download is running (needs the Downloads button in the toolbar, which Firefox shows during downloads).
 - At 50 open tabs, the doghouse gives way to "it's getting crowded in here."
+- Schroeder plays his toy piano at the end of each expanded tab that's playing sound (he steps aside on hover for the close button, and leaves when the tab is muted).
+- Lucy's psychiatric booth stands at the end of the Cmd+F find bar. The Doctor Is In.
 
 ## Firefox pages
 
-Also need the userChrome extras. These live in `userContent.css`, since Firefox shows its own pages as content that `userChrome.css` doesn't reach; web pages aren't affected.
+Also need the userChrome extras. These live in `userContent.css`, since Firefox shows its own pages as content that `userChrome.css` doesn't reach.
 
 - **New tab and home**: paper background in light mode, and Snoopy's doghouse in place of the Firefox logo.
 - **Error pages** ("Server Not Found", offline, and the like): paper background in light mode, and Charlie Brown getting knocked over by a line drive in place of the fox. Good grief.
+- **Reader View**: paper and ink in the light color scheme, with Snoopy reading above the title (also on sepia and gray). Dark and custom schemes keep Firefox's colors.
+- **PDF viewer**: paper toolbar and sidebar around the white pages in light mode.
+- **Menus**: Firefox's own menus (main menu, extensions, downloads) become white Notion popovers with an ink edge. macOS draws right-click and dropdown menus itself, so those stay native.
+- **Scrollbars**: thin, Notion warm-gray scrollbars in the browser and on web pages. This is the one thing that reaches websites, and only those that don't style their own scrollbars.
 
 ## Developer features
 
@@ -158,7 +168,7 @@ uv run tests/verify_userchrome.py                  # userChrome in a throwaway h
 sh -n install.sh                                   # installer syntax only
 ```
 
-`tests/verify_userchrome.py` starts a throwaway headless Firefox with the userChrome extras three times (default toolbar, flexible spaces, dark mode). It checks computed styles: which sprite shows in each state (typing, sleeping, dancing, Joe Cool, the new-tab skater, Flying Ace, chirping Woodstock, the crowded sidebar), every about:config setting, small-window behavior, the paper toolbar, the white URL bar, the rounded page card, DevTools colors and Snoopy, Charlie Brown on error pages, and that the collapsed sidebar fits the selected tab's shadow next to a scrollbar.
+`tests/verify_userchrome.py` starts a throwaway headless Firefox with the userChrome extras three times (default toolbar, flexible spaces, dark mode). It checks computed styles: which sprite shows in each state (typing, sleeping, dancing, Joe Cool, the new-tab skater, Flying Ace, chirping Woodstock, the crowded sidebar, Schroeder, Lucy), every about:config setting, small-window behavior, the paper toolbar, the white URL bar and menus, the rounded page card, DevTools colors and Snoopy, Charlie Brown on error pages, paper Reader View and PDF viewer, and that the collapsed sidebar fits the selected tab's shadow next to a scrollbar.
 
 ### Manual checks before a release
 
@@ -177,7 +187,8 @@ Find the profile folder in `about:support` → **Profile Folder**, then:
   - Expanded and collapsed sidebar with enough tabs to scroll: the selected tab's border and shadow aren't clipped.
   - URL bar at rest, on hover, focused, and with the results dropdown open.
   - Paper toolbar, rounded page card with the sidebar on the left and right (**Settings** → **Sidebar**), and no paper edge in video fullscreen.
-  - Cmd+F find bar zigzag, a `localhost` page (LOCAL tag), and an `http://` page (insecure underline).
+  - Cmd+F find bar zigzag and Lucy's booth, a `localhost` page (LOCAL tag), and an `http://` page (insecure underline).
+  - Main menu (☰) popover, Reader View on an article, a PDF, and Schroeder on a tab playing music in the expanded sidebar.
   - DevTools (Cmd+Option+I) docked and in a separate window: paper panels, and typing Snoopy with a blinking cursor in the tab bar.
   - A new tab (doghouse logo on paper; the test can't render the real new tab page), a private window (Flying Ace), a download (chirping Woodstock), and `http://snoopy.invalid` (Charlie Brown's line drive).
   - Compact density (**Customize Toolbar…** → **Density**).
