@@ -61,7 +61,7 @@ return {
   left: left !== "none" ? left : bg("#urlbar-container", "::before"),
   right: right !== "none" ? right : bg("#urlbar-container", "::after"),
   inactive: document.documentElement.matches(":-moz-window-inactive"),
-  sidebar: style("#vertical-tabs").backgroundImage,
+  sidebar: style("#vertical-tabs", "::after").backgroundImage,
   sidebarPadding: style("#vertical-tabs").paddingBottom,
   navbarBg: style("#nav-bar").backgroundColor,
   urlbarBg: style("#urlbar > .urlbar-background").backgroundColor,
@@ -227,6 +227,15 @@ def run(label, extra_prefs, failures, dark=False):
         else:
             expect("Expanded sidebar shows the doghouse", sprite(s["sidebar"]), "doghouse-scene.png", True)
         m.execute_script("document.querySelector('sidebar-main').toggleAttribute('expanded', arguments[0]);", script_args=[expanded])
+
+        sliding = m.execute_script("""
+          const main = document.querySelector('sidebar-main');
+          main.toggleAttribute('sidebar-ongoing-animations', true);
+          const opacity = getComputedStyle(document.getElementById('vertical-tabs'), '::after').opacity;
+          main.toggleAttribute('sidebar-ongoing-animations', false);
+          return opacity;
+        """)
+        expect("Sidebar scene hides while the sidebar slides", sliding, "0", True)
 
         open_tabs = m.execute_script("""
           const n = gBrowser.tabs.length, selected = gBrowser.selectedTab;
