@@ -3,6 +3,10 @@
     "snoopy-vertical@danielliew": {
       "updates": [
         {
+          "version": "1.6.0",
+          "update_link": "https://github.com/danielliew/snoopy-firefox-theme/releases/download/v1.6.0/snoopy-vertical.xpi"
+        },
+        {
           "version": "1.5.0",
           "update_link": "https://github.com/danielliew/snoopy-firefox-theme/releases/download/v1.5.0/snoopy-vertical.xpi"
         },
