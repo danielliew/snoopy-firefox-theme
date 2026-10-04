@@ -116,21 +116,25 @@ body > net-error-card {
   position: relative;
 }
 
+/* Covers just the illustration's corner: beside the text in wide windows, above it in
+   narrow ones (the text starts 173px down), so it never hides the text or buttons. */
 body > net-error-card::before {
   content: "Good grief.";
   position: absolute;
-  inset-block: 0;
+  inset-block-start: 0;
   inset-inline-start: 0;
   width: 233px;
+  height: 168px;
   z-index: 1;
   display: flex;
   align-items: flex-start;
   justify-content: center;
   box-sizing: border-box;
-  padding-block-start: 150px;
+  padding-block-start: 136px;
   font: italic 600 15px ui-sans-serif, -apple-system, BlinkMacSystemFont, sans-serif;
   color: var(--text-color);
-  background: url("assets/charlie-line-drive.png") no-repeat center top 40px / 202px auto,
+  pointer-events: none;
+  background: url("assets/charlie-line-drive.png") no-repeat center top 28px / 190px auto,
     var(--background-color-canvas);
 }
 
