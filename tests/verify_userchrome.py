@@ -222,6 +222,25 @@ def run(label, extra_prefs, failures, dark=False):
             expect("Expanded sidebar shows the doghouse", sprite(s["sidebar"]), "doghouse-scene.png", True)
         m.execute_script("document.querySelector('sidebar-main').toggleAttribute('expanded', arguments[0]);", script_args=[expanded])
 
+        open_tabs = m.execute_script("""
+          const n = gBrowser.tabs.length, selected = gBrowser.selectedTab;
+          for (let i = 0; i < 30; i++) gBrowser.addTrustedTab('about:blank');
+          gBrowser.selectedTab = selected;
+          SidebarController._state.launcherExpanded = false;
+          return n;
+        """)
+        time.sleep(1.5)
+        room = m.execute_script("""
+          const box = document.getElementById('tabbrowser-arrowscrollbox').shadowRoot.querySelector('[part~=scrollbox]');
+          const bg = gBrowser.selectedTab.querySelector('.tab-background').getBoundingClientRect();
+          return Math.round(box.getBoundingClientRect().left + box.clientWidth - bg.right);
+        """)
+        m.execute_script("""
+          SidebarController._state.launcherExpanded = true;
+          gBrowser.tabs.slice(arguments[0]).forEach(t => gBrowser.removeTab(t));
+        """, script_args=[open_tabs])
+        expect(f"Collapsed, overflowing tab strip fits the selected tab's shadow ({room}px spare)", room >= 2, True, True)
+
         set_pref("snoopy.color.typing", True)
         s = styles()
         expect("color.typing colors Snoopy", sprite(s["left"]), "color/snoopy-typing.png", True)
@@ -272,8 +291,9 @@ def run(label, extra_prefs, failures, dark=False):
 
 def main():
     failures = []
-    run("default toolbar", {}, failures)
-    run("flexible spaces", {"browser.uiCustomization.state": json.dumps(SPRING_LAYOUT)}, failures)
+    light = {"ui.systemUsesDarkTheme": 0}
+    run("default toolbar", light, failures)
+    run("flexible spaces", {**light, "browser.uiCustomization.state": json.dumps(SPRING_LAYOUT)}, failures)
     run("dark mode", {"ui.systemUsesDarkTheme": 1}, failures, dark=True)
     print(f"\n{'all checks passed' if not failures else f'{len(failures)} failed:'}")
     for f in failures:

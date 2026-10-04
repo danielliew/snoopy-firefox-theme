@@ -51,10 +51,15 @@
   font-weight: 600 !important;
 }
 
-/* Hide tab list scrollbars; wheel, trackpad and keyboard scrolling still work. */
-#tabbrowser-arrowscrollbox[orient="vertical"]::part(scrollbox),
-#pinned-tabs-container[orient="vertical"]::part(scrollbox) {
-  scrollbar-width: none !important;
+/* Collapsed sidebar: 4px wider margins so a classic (non-overlay) scrollbar
+   leaves room for the selected tab's background and its offset shadow.
+   ::part() doesn't match from user sheets, so the scrollbar can't be hidden. */
+:root:not([uidensity="touch"]):has(sidebar-main:not([expanded])) {
+  --tab-inner-inline-margin: 13px !important;
+
+  &[uidensity="compact"] {
+    --tab-inner-inline-margin: 15px !important;
+  }
 }
 
 /* Expanded sidebar: room between the container bar and the tab icon. */
