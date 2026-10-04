@@ -12,6 +12,8 @@
   --skate-ollie: url("assets/skate-ollie.png");
   --skate-jump: url("assets/skate-jump.png");
   --skate-cruise: url("assets/skate-cruise.png");
+  --charlie-dance: url("assets/charlie-dance.png");
+  --christmas-dancer: url("assets/christmas-dancer.png");
 }
 @media -moz-pref("snoopy.animations.slow") {
   :root {
@@ -26,6 +28,8 @@
     --skate-ollie: url("assets/slow/skate-ollie.png");
     --skate-jump: url("assets/slow/skate-jump.png");
     --skate-cruise: url("assets/slow/skate-cruise.png");
+    --charlie-dance: url("assets/slow/charlie-dance.png");
+    --christmas-dancer: url("assets/slow/christmas-dancer.png");
   }
 }
 @media -moz-pref("snoopy.animations.paused"), (prefers-reduced-motion: reduce) {
@@ -41,6 +45,8 @@
     --skate-ollie: url("assets/still/skate-ollie.png");
     --skate-jump: url("assets/still/skate-jump.png");
     --skate-cruise: url("assets/still/skate-cruise.png");
+    --charlie-dance: url("assets/still/charlie-dance.png");
+    --christmas-dancer: url("assets/still/christmas-dancer.png");
   }
 }
 
@@ -200,6 +206,38 @@
   @media -moz-pref("snoopy.animations.paused"), (prefers-reduced-motion: reduce) {
     :root {
       --skate-cruise: url("assets/color/still/skate-cruise.png");
+    }
+  }
+}
+
+@media -moz-pref("snoopy.ink.charlie") {
+  :root {
+    --charlie-dance: url("assets/ink/charlie-dance.png");
+  }
+  @media -moz-pref("snoopy.animations.slow") {
+    :root {
+      --charlie-dance: url("assets/ink/slow/charlie-dance.png");
+    }
+  }
+  @media -moz-pref("snoopy.animations.paused"), (prefers-reduced-motion: reduce) {
+    :root {
+      --charlie-dance: url("assets/ink/still/charlie-dance.png");
+    }
+  }
+}
+
+@media -moz-pref("snoopy.ink.dancer") {
+  :root {
+    --christmas-dancer: url("assets/ink/christmas-dancer.png");
+  }
+  @media -moz-pref("snoopy.animations.slow") {
+    :root {
+      --christmas-dancer: url("assets/ink/slow/christmas-dancer.png");
+    }
+  }
+  @media -moz-pref("snoopy.animations.paused"), (prefers-reduced-motion: reduce) {
+    :root {
+      --christmas-dancer: url("assets/ink/still/christmas-dancer.png");
     }
   }
 }

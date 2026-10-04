@@ -60,7 +60,8 @@ const right = bg("#urlbar-container + toolbarspring");
 const height = (sel, pseudo) => parseFloat(style(sel, pseudo).height) || document.querySelector(sel).getBoundingClientRect().height;
 return {
   left: left !== "none" ? left : bg("#urlbar-container", "::before"),
-  right: right !== "none" ? right : bg("#urlbar-container", "::after"),
+  // Woodstock's spot layers Charlie Brown (hidden until clicked) over the cart.
+  right: (v => v.slice(Math.max(0, v.lastIndexOf("url("))))(right !== "none" ? right : bg("#urlbar-container", "::after")),
   leftHeight: left !== "none" ? height("#stop-reload-button + toolbarspring") : height("#urlbar-container", "::before"),
   rightHeight: right !== "none" ? height("#urlbar-container + toolbarspring") : height("#urlbar-container", "::after"),
   inactive: document.documentElement.matches(":-moz-window-inactive"),
@@ -155,6 +156,23 @@ def run(label, extra_prefs, failures, dark=False):
         """)
         click(*open_space)
         expect("clicking open toolbar space sends a skater", reacting("#nav-bar", "::after"), True, True)
+        woodstock = m.execute_script("""
+          const spring = document.querySelector('#urlbar-container + toolbarspring');
+          const r = (spring || document.getElementById('urlbar-container')).getBoundingClientRect();
+          return [spring ? r.left + r.width / 2 : r.right - 30, r.top + r.height / 2, !!spring];
+        """)
+        click(woodstock[0], woodstock[1])
+        expect("clicking Woodstock makes Charlie Brown dance",
+               reacting("#urlbar-container + toolbarspring", None) if woodstock[2] else reacting("#urlbar-container", "::after"), True, True)
+        time.sleep(3)
+        m.execute_script("SidebarController._state.launcherExpanded = false;")
+        time.sleep(1)
+        reading = m.execute_script("const r = document.getElementById('vertical-tabs').getBoundingClientRect(); return [r.left + r.width / 2, r.bottom - 14];")
+        click(*reading)
+        pick = m.execute_script("return getComputedStyle(document.getElementById('vertical-tabs'), '::before').getPropertyValue('--snoopy-pick');")
+        expect("clicking reading Snoopy brings the Christmas dancer",
+               (reacting("#vertical-tabs", "::before"), pick), (True, "3"), True)
+        m.execute_script("SidebarController._state.launcherExpanded = true;")
         time.sleep(3)
         if dark:
             expect("dark mode keeps Firefox's toolbar color", "paper" if s["navbarBg"] == PAPER else "kept", "kept", True)

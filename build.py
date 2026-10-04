@@ -47,6 +47,8 @@ ASSET_HEIGHTS = {
     "skate-ollie": 30,
     "skate-jump": 30,
     "skate-cruise": 30,
+    "charlie-dance": 35,
+    "christmas-dancer": 28,
 }
 
 # README showcase renders, in px.
@@ -56,7 +58,7 @@ SHOWCASE_HEIGHTS = {"woodstock-cart": 90, "doghouse-scene": 160, "snoopy-dozing"
 PAPER = (251, 245, 230, 255)
 
 # Assets shown in their original colors by default instead of black-and-white line art.
-DEFAULT_COLOR = {"woodstock-cart"}
+DEFAULT_COLOR = {"woodstock-cart", "charlie-dance", "christmas-dancer"}
 # Joe Cool's source art is already black and white, so he has no color version.
 NO_COLOR_VERSION = {"joe-cool"}
 
@@ -74,6 +76,8 @@ STYLE_PREFS = {
     "skate-ollie": "skate",
     "skate-jump": "skate",
     "skate-cruise": "skate",
+    "charlie-dance": "charlie",
+    "christmas-dancer": "dancer",
 }
 SPRITES_CSS = ROOT / "userChrome" / "sprites.css"
 
@@ -406,7 +410,8 @@ def all_outputs():
         "snoopy-typing": ([f.crop(TYPING_BOX) for f in source_frames], source_durations),
         "woodstock-cart": ([f.crop(CART_BOX) for f in source_frames], source_durations),
     }
-    for name in ("snoopy-sleeping", "snoopy-dance", "snoopy-reading", "doghouse-scene", "snoopy-dozing"):
+    for name in ("snoopy-sleeping", "snoopy-dance", "snoopy-reading", "doghouse-scene", "snoopy-dozing",
+                 "charlie-dance", "christmas-dancer"):
         sources[name] = load_frames(GIPHY / f"{name}.gif")
     joe_frames, joe_durations = load_frames(GIPHY / "joe-cool.gif")
     joe_frames = joe_cool(joe_frames[::JOE_STEP])
