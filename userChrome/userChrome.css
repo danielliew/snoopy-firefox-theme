@@ -106,24 +106,26 @@
   font-weight: 600 !important;
 }
 
-/* Collapsed sidebar: 4px wider margins so a classic (non-overlay) scrollbar
-   leaves room for the selected tab's background and its offset shadow.
+/* Sidebar: 4px wider tab margins so a classic (non-overlay) scrollbar leaves room
+   for the selected tab's background and its offset shadow when collapsed; expanded
+   matches so tabs and icons keep their inset when the sidebar toggles.
    ::part() doesn't match from user sheets, so the scrollbar can't be hidden.
    Scoped to the sidebar so collapsing restyles only the sidebar, not the window.
    Firefox derives these from the margin on :root, so they're recomputed here. */
-:root:not([uidensity="touch"]) sidebar-main:not([expanded]) {
+:root:not([uidensity="touch"]) sidebar-main {
   --tab-inner-inline-margin: 13px !important;
   --tab-collapsed-width: calc(var(--tab-collapsed-background-width) + 2 * var(--tab-inner-inline-margin)) !important;
   --sidebar-launcher-button-padding-inline: var(--tab-inner-inline-margin) !important;
 }
 
-:root[uidensity="compact"] sidebar-main:not([expanded]) {
+:root[uidensity="compact"] sidebar-main {
   --tab-inner-inline-margin: 15px !important;
 }
 
-/* Expanded sidebar: room between the container bar and the tab icon. */
+/* Expanded sidebar: tab icons sit where they do when collapsed (centered in the
+   collapsed tab background), leaving room for the container bar. */
 #tabbrowser-tabs[orient="vertical"][expanded] .tabbrowser-tab {
-  --tab-inline-padding: calc(var(--tab-vertical-inline-padding) + 6px) !important;
+  --tab-inline-padding: calc(var(--tab-inner-inline-margin) + (var(--tab-collapsed-background-width) - 16px) / 2) !important;
 }
 
 /* ---------- Settings ----------

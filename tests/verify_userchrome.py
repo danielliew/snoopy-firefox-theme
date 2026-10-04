@@ -312,6 +312,16 @@ def run(label, extra_prefs, failures, dark=False):
         """)
         expect("Sidebar scene hides while the sidebar slides", sliding, "0", True)
 
+        icon_x = "const s = document.querySelector('sidebar-main').getBoundingClientRect(); return Math.round(gBrowser.selectedTab.querySelector('.tab-icon-stack').getBoundingClientRect().left - s.left);"
+        expanded_x = m.execute_script(icon_x)
+        m.execute_script("SidebarController._state.launcherExpanded = false;")
+        time.sleep(1)
+        collapsed_x = m.execute_script(icon_x)
+        m.execute_script("SidebarController._state.launcherExpanded = true;")
+        time.sleep(1)
+        expect(f"Tab icons keep their inset when the sidebar toggles ({expanded_x}px / {collapsed_x}px)",
+               expanded_x, collapsed_x, True)
+
         open_tabs = m.execute_script("""
           const n = gBrowser.tabs.length, selected = gBrowser.selectedTab;
           for (let i = 0; i < 30; i++) gBrowser.addTrustedTab('about:blank');
