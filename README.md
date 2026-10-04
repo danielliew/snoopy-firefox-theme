@@ -7,7 +7,7 @@ Firefox theme based on [Snoopy (animated)](https://addons.mozilla.org/firefox/ad
 It has two parts:
 
 - **Theme** (the link above): Peanuts colors (paper tab sidebar, inked selected tab and URL bar) and a black-and-white Snoopy animation. Signed by Mozilla and updates automatically.
-- **userChrome extras** (optional): CSS for what themes can't do: sprites pinned next to the reload button and URL bar, a Charlie Brown zigzag on the Cmd+F find bar, a Notion-style URL bar, and easter eggs.
+- **userChrome extras** (optional): CSS for what themes can't do: sprites pinned next to the reload button and URL bar, a Charlie Brown zigzag on the Cmd+F find bar, a Notion-style URL bar, developer signals, matching DevTools, and easter eggs.
 
 Peanuts characters and artwork © Peanuts Worldwide LLC. This is a non-commercial fan project. Animations from the official [Peanuts GIPHY account](https://giphy.com/peanuts): [sleeping](https://giphy.com/gifs/2rJw85F0vFJN0SLn3X), [happy dance](https://giphy.com/gifs/7xIMPoVGL2yzu), [Woodstock flying](https://giphy.com/gifs/jptAHfCnH8rSgVSjcE), [doghouse](https://giphy.com/gifs/SvKTWdJjUDcklNyQ0k).
 
@@ -29,6 +29,17 @@ Need the userChrome extras.
 - Snoopy falls asleep on his doghouse when the Firefox window is in the background.
 - Snoopy does his happy dance while the current page loads.
 - Snoopy's doghouse sits at the bottom of the expanded tab sidebar; a lone Woodstock when collapsed.
+
+## Developer features
+
+Also need the userChrome extras.
+
+- **LOCAL tag**: `localhost` and `file://` pages show a yellow ink `LOCAL` tag in the URL bar, so dev and production never look alike.
+- **Insecure pages**: plain `http://` sites (and certificate error pages) get a red ink underline on the URL bar.
+- **Automation hazard tape**: windows driven by Playwright, Selenium, or Puppeteer get a striped border under the toolbar, so you don't browse in a test window by accident.
+- **Container tabs**: a bold color bar with an ink edge on each container tab (works with Multi-Account Containers).
+- **Unloaded tabs**: tabs Firefox has unloaded to save memory fade to gray, so you can see what's actually running.
+- **DevTools**: paper backgrounds, ink text and selection, and Woodstock-yellow text highlights in light mode. Dark mode DevTools are unchanged.
 
 ## Development
 

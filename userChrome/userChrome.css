@@ -89,6 +89,77 @@ sidebar-main:not([expanded]) > #vertical-tabs {
   padding-bottom: 30px !important;
 }
 
+/* ---------- Developer signals ---------- */
+
+/* Container tabs: a bold ink-edged color bar on the leading edge. */
+.tabbrowser-tab[usercontextid] > .tab-stack > .tab-background > .tab-context-line {
+  display: none !important;
+}
+
+.tabbrowser-tab[usercontextid] > .tab-stack > .tab-background {
+  background-image: linear-gradient(to right, var(--identity-icon-color) 4px, var(--peanuts-ink) 4px 5.5px, transparent 5.5px) !important;
+  background-repeat: no-repeat !important;
+}
+
+/* Unloaded tabs (not using memory) fade out like pencil sketches. */
+.tabbrowser-tab:is([pending], [discarded]) > .tab-stack > .tab-content {
+  opacity: 0.45;
+  filter: grayscale(1);
+}
+
+/* localhost and file:// pages get a Woodstock-yellow LOCAL tag. */
+#identity-box[pageproxystate="valid"].localResource::after {
+  content: "LOCAL";
+  align-self: center;
+  margin-inline: 2px 6px;
+  padding: 1px 5px;
+  border: 1.5px solid var(--peanuts-ink);
+  border-radius: 4px;
+  background: #f6c544;
+  color: var(--peanuts-ink);
+  font: 700 9px/1.2 ui-monospace, "SF Mono", Menlo, monospace;
+  letter-spacing: 0.06em;
+}
+
+/* Plain http:// sites (not localhost) get a doghouse-red ink underline. */
+#urlbar:has(#identity-box[pageproxystate="valid"]:is(.notSecure, .certErrorPage, .httpsOnlyErrorPage)) > .urlbar-background {
+  background-image: linear-gradient(#e2412c, #e2412c) !important;
+  background-size: calc(100% - 12px) 2px !important;
+  background-position: center bottom 1px !important;
+  background-repeat: no-repeat !important;
+}
+
+/* Windows driven by Playwright, Selenium or Puppeteer get hazard tape. */
+:root[remotecontrol] #nav-bar {
+  background-image: repeating-linear-gradient(-45deg, var(--peanuts-ink) 0 6px, #f6c544 6px 12px) !important;
+  background-size: 100% 4px !important;
+  background-position: left bottom !important;
+  background-repeat: no-repeat !important;
+  padding-bottom: 4px !important;
+}
+
+/* ---------- DevTools: paper and ink in light mode; dark mode unchanged ---------- */
+
+@-moz-document url-prefix("chrome://devtools/") {
+  :root {
+    --theme-body-background: light-dark(#fffdf7, #232327) !important;
+    --theme-sidebar-background: light-dark(#fbf5e6, #18181a) !important;
+    --theme-toolbar-background: light-dark(#fbf5e6, #18181a) !important;
+    --theme-tab-toolbar-background: light-dark(#fbf5e6, var(--grey-90)) !important;
+    --theme-toolbar-selected-color: light-dark(#37352f, white) !important;
+    --theme-splitter-color: light-dark(rgba(55, 53, 47, 0.16), var(--grey-70)) !important;
+    --theme-body-color: light-dark(#37352f, var(--grey-40)) !important;
+    --theme-text-color-strong: light-dark(#37352f, var(--grey-30)) !important;
+    --theme-selection-background: light-dark(#37352f, #204e8a) !important;
+    --theme-selection-background-hover: light-dark(#f3e8cf, #353b48) !important;
+    --theme-focus-outline-color: light-dark(#37352f, var(--blue-50)) !important;
+  }
+
+  ::selection {
+    background-color: light-dark(rgba(246, 197, 68, 0.45), rgba(117, 191, 255, 0.35)) !important;
+  }
+}
+
 /* ---------- URL bar: Notion layout with comic ink ---------- */
 
 #urlbar {
