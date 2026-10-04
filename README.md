@@ -75,6 +75,8 @@ Animations also pause on their own when **Reduce motion** is on (macOS System Se
 
 Snoopy sits in the flexible space after the reload button and Woodstock in the one after the URL bar. If your toolbar doesn't have those (Firefox's default layout), they sit on either side of the URL bar instead. To move them, right-click the toolbar → **Customize Toolbar…** and drag in **Flexible Space** items.
 
+The extras make room on small screens: Woodstock's cart steps aside when the window is under 1000 px wide and Snoopy under 760 px, the sidebar doghouse hides in windows under 640 px tall (Snoopy reading under 480 px), and the doghouse shrinks to fit a narrow sidebar.
+
 ## Easter eggs
 
 Need the userChrome extras.
@@ -96,6 +98,15 @@ Also need the userChrome extras.
 - **Container tabs**: a bold color bar with an ink edge on each container tab (works with Multi-Account Containers).
 - **Unloaded tabs**: tabs Firefox has unloaded to save memory get a grayed icon and an italic title, so you can see what's actually running.
 - **DevTools**: paper backgrounds, ink text and selection, and Woodstock-yellow text highlights in light mode. Dark mode DevTools are unchanged.
+
+## Requirements and limitations
+
+- **Firefox 137 or newer** for the settings (including ESR 140); built and tested on Firefox 157 with vertical tabs. The theme alone works on any recent Firefox.
+- The paper-and-ink colors apply only while Firefox's interface is light, which the Snoopy theme guarantees. With a dark theme, the extras keep the sprites but leave Firefox's colors alone, so nothing turns unreadable.
+- userChrome.css styles Firefox's internals, which Mozilla doesn't support and can change in any release. CI runs the headless Firefox test against the latest Firefox every week to catch breakage early.
+- The installer covers macOS and Linux; Windows uses the manual steps.
+- CSS can't tell a brand-new tab from one that reappears, so dragging a tab or expanding a collapsed tab group can replay the skate on those tabs.
+- Animated sprites repaint their part of the toolbar continuously. `snoopy.animations.paused` stops that if you're saving battery.
 
 ## Development
 

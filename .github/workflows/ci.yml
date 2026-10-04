@@ -4,6 +4,10 @@ on:
   push:
     branches: [main]
   pull_request:
+  # userChrome.css styles Firefox internals that can change in any release.
+  schedule:
+    - cron: "0 15 * * 1"
+  workflow_dispatch:
 
 jobs:
   assets:

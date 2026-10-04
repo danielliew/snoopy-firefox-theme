@@ -12,18 +12,39 @@
 
   /* The theme's centered fallback sprites are replaced by the toolbar ones below. */
   --lwt-additional-images: none !important;
+}
 
-  /* Vertical tabs: paper strip, hover tint, selected tab as an inked comic panel. */
-  --tab-border-radius: 6px !important;
-  --tab-background-color-hover: var(--peanuts-paper-hover) !important;
-  --tab-border-color-hover: transparent !important;
-  --tab-background-color-selected: #ffffff !important;
-  --tab-border: 1.5px solid var(--tab-border-color) !important;
-  --tab-border-color-selected: var(--peanuts-ink) !important;
-  --tab-box-shadow-selected: 2px 2px 0 var(--peanuts-ink) !important;
-  --tab-text-color: var(--peanuts-ink) !important;
-  --tab-text-color-hover: var(--peanuts-ink) !important;
-  --tab-text-color-selected: var(--peanuts-ink) !important;
+/* Paper and ink colors only apply while Firefox's interface is light (the Snoopy theme
+   keeps it light). With a dark theme the sprites stay but Firefox's colors are kept. */
+@media (prefers-color-scheme: light) and (forced-colors: none) {
+  :root {
+    /* Vertical tabs: paper strip, hover tint, selected tab as an inked comic panel. */
+    --tab-border-radius: 6px !important;
+    --tab-background-color-hover: var(--peanuts-paper-hover) !important;
+    --tab-border-color-hover: transparent !important;
+    --tab-background-color-selected: #ffffff !important;
+    --tab-border: 1.5px solid var(--tab-border-color) !important;
+    --tab-border-color-selected: var(--peanuts-ink) !important;
+    --tab-box-shadow-selected: 2px 2px 0 var(--peanuts-ink) !important;
+    --tab-text-color: var(--peanuts-ink) !important;
+    --tab-text-color-hover: var(--peanuts-ink) !important;
+    --tab-text-color-selected: var(--peanuts-ink) !important;
+  }
+
+  #nav-bar {
+    background-color: #ffffff !important;
+  }
+
+  /* Charlie Brown zigzag along the top of the Cmd+F find bar. */
+  findbar {
+    background-color: #ffffff !important;
+    background-image: var(--peanuts-zigzag) !important;
+    background-repeat: repeat-x !important;
+    background-position: left top !important;
+    background-size: 16px 6px !important;
+    padding-top: 6px !important;
+    border-top: none !important;
+  }
 }
 
 .tabbrowser-tab[selected] .tab-label {
@@ -39,23 +60,6 @@
 /* Expanded sidebar: room between the container bar and the tab icon. */
 #tabbrowser-tabs[orient="vertical"][expanded] .tabbrowser-tab {
   --tab-inline-padding: calc(var(--tab-vertical-inline-padding) + 6px) !important;
-}
-
-/* ---------- Toolbar and find bar ---------- */
-
-#nav-bar {
-  background-color: #ffffff !important;
-}
-
-/* Charlie Brown zigzag along the top of the Cmd+F find bar. */
-findbar {
-  background-color: #ffffff !important;
-  background-image: var(--peanuts-zigzag) !important;
-  background-repeat: repeat-x !important;
-  background-position: left top !important;
-  background-size: 16px 6px !important;
-  padding-top: 6px !important;
-  border-top: none !important;
 }
 
 /* ---------- Settings ----------
@@ -77,13 +81,6 @@ findbar {
 @media -moz-pref("snoopy.animations.slow") {
   :root {
     --skate-duration: 3.6s;
-  }
-}
-
-@media -moz-pref("snoopy.sidebar.hide-scene") {
-  sidebar-main:is([expanded], :not([expanded])) > #vertical-tabs {
-    background-image: none;
-    padding-bottom: 0 !important;
   }
 }
 
@@ -116,58 +113,74 @@ findbar {
   }
 }
 
-#stop-reload-button + toolbarspring,
-#urlbar-container + toolbarspring,
-#nav-bar-customization-target:not(:has(> #stop-reload-button + toolbarspring)) > #urlbar-container::before,
-#nav-bar-customization-target:not(:has(> #urlbar-container + toolbarspring)) > #urlbar-container::after {
-  min-width: 72px !important;
-  background-repeat: no-repeat !important;
-}
-
 #urlbar-container::before,
 #urlbar-container::after {
   flex: none;
 }
 
-#stop-reload-button + toolbarspring,
-#nav-bar-customization-target:not(:has(> #stop-reload-button + toolbarspring)) > #urlbar-container::before {
-  content: "";
-  background-image: var(--snoopy-left);
-  background-size: var(--snoopy-left-size);
-  background-position: left 4px center;
+/* Narrow windows give the space back to the URL bar: the cart steps aside first. */
+@media (min-width: 760px) {
+  #stop-reload-button + toolbarspring,
+  #nav-bar-customization-target:not(:has(> #stop-reload-button + toolbarspring)) > #urlbar-container::before {
+    content: "";
+    min-width: 72px !important;
+    background-image: var(--snoopy-left);
+    background-size: var(--snoopy-left-size);
+    background-repeat: no-repeat !important;
+    background-position: left 4px center;
+  }
 }
 
-#urlbar-container + toolbarspring,
-#nav-bar-customization-target:not(:has(> #urlbar-container + toolbarspring)) > #urlbar-container::after {
-  content: "";
-  background-image: var(--woodstock-cart);
-  background-size: 34px 26px;
-  background-position: right 4px center;
+@media (min-width: 1000px) {
+  #urlbar-container + toolbarspring,
+  #nav-bar-customization-target:not(:has(> #urlbar-container + toolbarspring)) > #urlbar-container::after {
+    content: "";
+    min-width: 72px !important;
+    background-image: var(--woodstock-cart);
+    background-size: 34px 26px;
+    background-repeat: no-repeat !important;
+    background-position: right 4px center;
+  }
 }
 
 /* ---------- Vertical tab sidebar ---------- */
 
-/* Easter egg: Snoopy's doghouse at the bottom of the expanded sidebar,
-   Snoopy reading when collapsed. Padding keeps tabs from covering it. */
+/* Easter egg: Snoopy's doghouse at the bottom of the expanded sidebar, Snoopy reading
+   when collapsed. Padding keeps tabs from covering it; short windows keep the room
+   for tabs, and a narrow sidebar shrinks the doghouse to fit. */
 #vertical-tabs {
-  background-image: var(--doghouse-scene);
-  background-size: 180px 83px;
   background-repeat: no-repeat;
   background-position: center bottom 4px;
-  padding-bottom: 91px !important;
 }
 
-sidebar-main:not([expanded]) > #vertical-tabs {
-  background-image: var(--snoopy-reading);
-  background-size: 31px 24px;
-  padding-bottom: 32px !important;
+@media (min-height: 641px) {
+  sidebar-main[expanded] > #vertical-tabs {
+    background-image: var(--doghouse-scene);
+    background-size: min(180px, 100% - 16px) auto;
+    padding-bottom: 91px !important;
+  }
+
+  /* Easter egg: Snoopy dozes off on his doghouse while the window is in the background. */
+  @media not -moz-pref("snoopy.easter-eggs.off") {
+    sidebar-main[expanded] > #vertical-tabs:-moz-window-inactive {
+      background-image: var(--snoopy-dozing);
+      background-size: 61px 83px;
+    }
+  }
 }
 
-/* Easter egg: Snoopy dozes off on his doghouse while the window is in the background. */
-@media not -moz-pref("snoopy.easter-eggs.off") {
-  sidebar-main[expanded] > #vertical-tabs:-moz-window-inactive {
-    background-image: var(--snoopy-dozing);
-    background-size: 61px 83px;
+@media (min-height: 481px) {
+  sidebar-main:not([expanded]) > #vertical-tabs {
+    background-image: var(--snoopy-reading);
+    background-size: 31px 24px;
+    padding-bottom: 32px !important;
+  }
+}
+
+@media -moz-pref("snoopy.sidebar.hide-scene") {
+  sidebar-main:is([expanded], :not([expanded])) > #vertical-tabs {
+    background-image: none !important;
+    padding-bottom: 0 !important;
   }
 }
 
@@ -286,49 +299,51 @@ sidebar-main:not([expanded]) > #vertical-tabs {
 
 /* ---------- URL bar: Notion layout with comic ink ---------- */
 
-#urlbar {
-  --notion-border: 1.5px solid var(--peanuts-ink);
-  --ink-shadow-sm: 2px 2px 0 var(--peanuts-ink);
-  --ink-shadow-lg: 3px 3px 0 var(--peanuts-ink), rgba(15, 15, 15, 0.1) 0 9px 24px;
+@media (prefers-color-scheme: light) and (forced-colors: none) {
+  #urlbar {
+    --notion-border: 1.5px solid var(--peanuts-ink);
+    --ink-shadow-sm: 2px 2px 0 var(--peanuts-ink);
+    --ink-shadow-lg: 3px 3px 0 var(--peanuts-ink), rgba(15, 15, 15, 0.1) 0 9px 24px;
 
-  --urlbar-background-border-radius: 6px !important;
-  --urlbar-background-border-focused: var(--notion-border) !important;
-  --urlbar-background-border-open: var(--notion-border) !important;
-  --urlbar-background-outline-focused: none !important;
-  --urlbar-background-box-shadow-open: var(--ink-shadow-lg) !important;
-  --urlbarview-background-color-hover: rgba(55, 53, 47, 0.06) !important;
-  --urlbarview-background-color-selected: rgba(246, 197, 68, 0.28) !important;
-  --urlbarview-text-color-selected: var(--peanuts-ink) !important;
-  --urlbarview-separator-color: rgba(55, 53, 47, 0.09) !important;
-  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif !important;
-}
-
-/* Firefox has no hover or focused-shadow tokens for the URL bar. */
-#urlbar:not([focused], [open]):hover > .urlbar-background {
-  background-color: #ffffff !important;
-  border: var(--notion-border) !important;
-}
-
-#urlbar[focused]:not([open]) > .urlbar-background {
-  box-shadow: var(--ink-shadow-sm) !important;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  #urlbar > .urlbar-background {
-    transition: background-color 120ms ease, border-color 120ms ease, box-shadow 120ms ease !important;
+    --urlbar-background-border-radius: 6px !important;
+    --urlbar-background-border-focused: var(--notion-border) !important;
+    --urlbar-background-border-open: var(--notion-border) !important;
+    --urlbar-background-outline-focused: none !important;
+    --urlbar-background-box-shadow-open: var(--ink-shadow-lg) !important;
+    --urlbarview-background-color-hover: rgba(55, 53, 47, 0.06) !important;
+    --urlbarview-background-color-selected: rgba(246, 197, 68, 0.28) !important;
+    --urlbarview-text-color-selected: var(--peanuts-ink) !important;
+    --urlbarview-separator-color: rgba(55, 53, 47, 0.09) !important;
+    font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif !important;
   }
-}
 
-#urlbar .urlbar-input::placeholder {
-  color: rgba(55, 53, 47, 0.5) !important;
-  opacity: 1 !important;
-}
+  /* Firefox has no hover or focused-shadow tokens for the URL bar. */
+  #urlbar:not([focused], [open]):hover > .urlbar-background {
+    background-color: #ffffff !important;
+    border: var(--notion-border) !important;
+  }
 
-#urlbar .urlbarView-row {
-  border-radius: 4px !important;
-}
+  #urlbar[focused]:not([open]) > .urlbar-background {
+    box-shadow: var(--ink-shadow-sm) !important;
+  }
 
-#urlbar .urlbarView-url,
-#urlbar .urlbarView-action {
-  color: rgba(55, 53, 47, 0.65) !important;
+  @media (prefers-reduced-motion: no-preference) {
+    #urlbar > .urlbar-background {
+      transition: background-color 120ms ease, border-color 120ms ease, box-shadow 120ms ease !important;
+    }
+  }
+
+  #urlbar .urlbar-input::placeholder {
+    color: rgba(55, 53, 47, 0.5) !important;
+    opacity: 1 !important;
+  }
+
+  #urlbar .urlbarView-row {
+    border-radius: 4px !important;
+  }
+
+  #urlbar .urlbarView-url,
+  #urlbar .urlbarView-action {
+    color: rgba(55, 53, 47, 0.65) !important;
+  }
 }

@@ -1,6 +1,7 @@
 [project]
 name = "snoopy-firefox-theme"
-version = "1.8.0"
+# Tooling only; releases are versioned by theme/manifest.json and git tags.
+version = "0.0.0"
 description = "Build tooling for the Snoopy Vertical Firefox theme and userChrome extras"
 requires-python = ">=3.12"
 dependencies = ["pillow>=11"]

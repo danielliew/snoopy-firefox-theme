@@ -72,7 +72,7 @@ def sprite(value):
     return value.split("assets/", 1)[1].split('"')[0].rstrip(")")
 
 
-def run(label, extra_prefs, failures):
+def run(label, extra_prefs, failures, dark=False):
     print(f"\n== {label} ==")
     profile = Path(tempfile.mkdtemp(prefix="snoopy-test-"))
     prefs = {**BASE_PREFS, **extra_prefs}
@@ -97,6 +97,7 @@ def run(label, extra_prefs, failures):
         m = Marionette(host="127.0.0.1", port=PORT, startup_timeout=60)
         m.start_session()
         m.set_context(m.CONTEXT_CHROME)
+        m.set_window_rect(width=1280, height=800)
         time.sleep(1)
 
         def styles():
@@ -113,8 +114,29 @@ def run(label, extra_prefs, failures):
         expect(f"Snoopy left of URL bar (window inactive: {s['inactive']})", sprite(s["left"]), resting, True)
         expect("Woodstock cart right of URL bar", sprite(s["right"]), "woodstock-cart.png", True)
         expect("Sidebar scene", sprite(s["sidebar"]), "doghouse-scene.png", True)
-        expect("White nav bar", s["navbarBg"], "rgb(255, 255, 255)", True)
-        expect("Ink tab text", s["tabText"], "#37352f", True)
+        if dark:
+            expect("dark mode keeps Firefox's toolbar color", "white" if s["navbarBg"] == "rgb(255, 255, 255)" else "kept", "kept", True)
+            expect("dark mode keeps Firefox's tab text", "ink" if s["tabText"] == "#37352f" else "kept", "kept", True)
+        else:
+            expect("White nav bar", s["navbarBg"], "rgb(255, 255, 255)", True)
+            expect("Ink tab text", s["tabText"], "#37352f", True)
+
+        def resized(width, height):
+            m.set_window_rect(width=width, height=height)
+            time.sleep(0.4)
+            return styles()
+
+        s = resized(900, 800)
+        expect("900px wide: cart steps aside", s["right"], "none", True)
+        expect("900px wide: Snoopy stays", sprite(s["left"]), "snoopy-typing.png", True)
+        s = resized(700, 800)
+        expect("700px wide: Snoopy steps aside", s["left"], "none", True)
+        s = resized(1280, 600)
+        expect("600px tall: sidebar scene steps aside", s["sidebar"], "none", True)
+        expect("600px tall: sidebar padding released", s["sidebarPadding"], "0px", True)
+        s = resized(1280, 800)
+        expect("back to 1280x800: sprites return", sprite(s["left"]) + " " + sprite(s["right"]) + " " + sprite(s["sidebar"]),
+               "snoopy-typing.png woodstock-cart.png doghouse-scene.png", True)
 
         m.execute_script("gBrowser.selectedTab.setAttribute('busy', 'true');")
         expect("Snoopy dances while the tab loads", sprite(styles()["left"]), "snoopy-dance.png", True)
@@ -217,11 +239,11 @@ def run(label, extra_prefs, failures):
 
         m.execute_script("gBrowser.getFindBar().then(f => f.open());")
         time.sleep(0.5)
-        expect(
-            "Zigzag on find bar",
-            m.execute_script("return getComputedStyle(gBrowser.getCachedFindBar()).backgroundImage;"),
-            "svg",
-        )
+        zigzag = m.execute_script("return getComputedStyle(gBrowser.getCachedFindBar()).backgroundImage;")
+        if dark:
+            expect("dark mode skips the find bar zigzag", zigzag, "none", True)
+        else:
+            expect("Zigzag on find bar", zigzag, "svg")
         m.delete_session()
     finally:
         proc.terminate()
@@ -233,6 +255,7 @@ def main():
     failures = []
     run("default toolbar", {}, failures)
     run("flexible spaces", {"browser.uiCustomization.state": json.dumps(SPRING_LAYOUT)}, failures)
+    run("dark mode", {"ui.systemUsesDarkTheme": 1}, failures, dark=True)
     print(f"\n{'all checks passed' if not failures else f'{len(failures)} failed:'}")
     for f in failures:
         print(f"  {f}")
