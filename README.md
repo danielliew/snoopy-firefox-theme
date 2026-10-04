@@ -105,7 +105,7 @@ Also need the userChrome extras.
 - **Automation hazard tape**: windows driven by Playwright, Selenium, or Puppeteer get a striped border under the toolbar, so you don't browse in a test window by accident.
 - **Container tabs**: a bold color bar with an ink edge on each container tab (works with Multi-Account Containers).
 - **Unloaded tabs**: tabs Firefox has unloaded to save memory get a grayed icon and an italic title, so you can see what's actually running.
-- **DevTools**: paper backgrounds, ink text and selection, and Woodstock-yellow text highlights in light mode. Dark mode DevTools are unchanged.
+- **DevTools**: paper backgrounds, ink text and selection, and Woodstock-yellow text highlights in light mode; dark mode keeps Firefox's colors. Snoopy types away in the toolbox tab bar next to a blinking cursor, in ink on light DevTools and green-screen terminal style on dark. These styles live in `userContent.css`, since Firefox loads DevTools as content pages that `userChrome.css` doesn't reach. The Browser Toolbox (for debugging Firefox itself) uses its own profile, so it isn't styled.
 
 ## Requirements and limitations
 
@@ -142,7 +142,7 @@ uv run tests/verify_userchrome.py                  # userChrome in a throwaway h
 sh -n install.sh                                   # installer syntax only
 ```
 
-`tests/verify_userchrome.py` starts a throwaway headless Firefox with the userChrome extras three times (default toolbar, flexible spaces, dark mode). It checks computed styles: which sprite shows in each state (typing, sleeping, dancing, Joe Cool, the new-tab skater), every about:config setting, small-window behavior, the paper toolbar, the white URL bar, the rounded page card, and that the collapsed sidebar fits the selected tab's shadow next to a scrollbar.
+`tests/verify_userchrome.py` starts a throwaway headless Firefox with the userChrome extras three times (default toolbar, flexible spaces, dark mode). It checks computed styles: which sprite shows in each state (typing, sleeping, dancing, Joe Cool, the new-tab skater), every about:config setting, small-window behavior, the paper toolbar, the white URL bar, the rounded page card, DevTools colors and Snoopy, and that the collapsed sidebar fits the selected tab's shadow next to a scrollbar.
 
 ### Manual checks before a release
 
@@ -162,6 +162,7 @@ Find the profile folder in `about:support` → **Profile Folder**, then:
   - URL bar at rest, on hover, focused, and with the results dropdown open.
   - Paper toolbar, rounded page card with the sidebar on the left and right (**Settings** → **Sidebar**), and no paper edge in video fullscreen.
   - Cmd+F find bar zigzag, a `localhost` page (LOCAL tag), and an `http://` page (insecure underline).
+  - DevTools (Cmd+Option+I) docked and in a separate window: paper panels, and typing Snoopy with a blinking cursor in the tab bar (green on dark).
   - Compact density (**Customize Toolbar…** → **Density**).
 - **Animations**: Snoopy types, then sleeps and the doghouse dozes when another app is focused. He dances while a page loads, Joe Cool takes over while a tab plays sound (and Snoopy returns when it's muted), and the skater rolls across each new tab. Toggle each `snoopy.*` pref in `about:config`; changes apply instantly.
 - **Dark mode**: switch macOS to Dark and set Firefox's theme to **System auto** in about:addons. Sprites stay, Firefox's own colors and corners return, and nothing turns unreadable.

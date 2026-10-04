@@ -455,28 +455,6 @@ sidebar-main[sidebar-ongoing-animations] > #vertical-tabs::after {
   padding-bottom: 4px !important;
 }
 
-/* ---------- DevTools: paper and ink in light mode; dark mode unchanged ---------- */
-
-@-moz-document url-prefix("chrome://devtools/") {
-  :root {
-    --theme-body-background: light-dark(#fffdf7, #232327) !important;
-    --theme-sidebar-background: light-dark(#fbf5e6, #18181a) !important;
-    --theme-toolbar-background: light-dark(#fbf5e6, #18181a) !important;
-    --theme-tab-toolbar-background: light-dark(#fbf5e6, var(--grey-90)) !important;
-    --theme-toolbar-selected-color: light-dark(#37352f, white) !important;
-    --theme-splitter-color: light-dark(rgba(55, 53, 47, 0.16), var(--grey-70)) !important;
-    --theme-body-color: light-dark(#37352f, var(--grey-40)) !important;
-    --theme-text-color-strong: light-dark(#37352f, var(--grey-30)) !important;
-    --theme-selection-background: light-dark(#37352f, #204e8a) !important;
-    --theme-selection-background-hover: light-dark(#f3e8cf, #353b48) !important;
-    --theme-focus-outline-color: light-dark(#37352f, var(--blue-50)) !important;
-  }
-
-  ::selection {
-    background-color: light-dark(rgba(246, 197, 68, 0.45), rgba(117, 191, 255, 0.35)) !important;
-  }
-}
-
 /* ---------- URL bar: Notion layout with comic ink ---------- */
 
 @media (prefers-color-scheme: light) and (forced-colors: none) {
