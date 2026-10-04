@@ -68,12 +68,12 @@
   .logo-and-wordmark .logo {
     width: 139px !important;
     height: 64px !important;
-    background: url("assets/doghouse-scene.png") no-repeat center / contain !important;
+    background: url("assets/color/doghouse-scene.png") no-repeat center / contain !important;
   }
 
   @media -moz-pref("snoopy.animations.paused"), (prefers-reduced-motion: reduce) {
     .logo-and-wordmark .logo {
-      background-image: url("assets/still/doghouse-scene.png") !important;
+      background-image: url("assets/color/still/doghouse-scene.png") !important;
     }
   }
 }
