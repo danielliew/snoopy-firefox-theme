@@ -101,9 +101,8 @@
 }
 
 /* ---------- Error pages: paper, and Charlie Brown's line drive in place of the fox ----------
-   @-moz-document doesn't match error pages (they keep the failed site's address), so
-   these key off Firefox's error card element. The card is a web component, so its
-   insides can't be styled from here; Charlie Brown covers its illustration instead. */
+   The error card is a web component, so its insides can't be styled from here;
+   Charlie Brown covers its illustration instead. */
 
 @media (prefers-color-scheme: light) {
   :root:has(> body > net-error-card) {
@@ -112,31 +111,58 @@
   }
 }
 
+/* The cover matches Firefox's illustration: 131px wide for most errors, 195px for the
+   connection errors below. It sits 30px down beside the text in wide windows and at
+   the top above it in narrow ones, leaving a gap before the text either way. */
 body > net-error-card {
   position: relative;
+  --snoopy-cover-width: 131px;
+  --snoopy-cover-height: 159px;
+  --snoopy-cover-gap: 16px;
+  --snoopy-caption-top: 96px;
 }
 
-/* Covers just Firefox's 195px-wide illustration (30px down beside the text in wide
-   windows, at the top above it in narrow ones), leaving a gap before the text. */
+/* Error codes Firefox shows its larger no-connection illustration for
+   (net-errors.mjs); dnsNotFound switches to the smaller one with the search button. */
+@-moz-document regexp("about:neterror\\?e=(connectionFailure|netInterrupt|netTimeout|httpErrorPage|serverError|invalidHeaderValue|netOffline|vpnFailure|NS_ERROR_OFFLINE|NS_ERROR_NET_EMPTY_RESPONSE)&.*") {
+  body > net-error-card {
+    --snoopy-cover-width: 195px;
+    --snoopy-cover-height: 168px;
+    --snoopy-cover-gap: 48px;
+    --snoopy-caption-top: 116px;
+  }
+}
+
+@media not -moz-pref("browser.netError.searchCTA.enabled") {
+  @-moz-document regexp("about:neterror\\?e=dnsNotFound&.*") {
+    body > net-error-card {
+      --snoopy-cover-width: 195px;
+      --snoopy-cover-height: 168px;
+      --snoopy-cover-gap: 48px;
+      --snoopy-caption-top: 116px;
+    }
+  }
+}
+
 body > net-error-card::before {
   content: "It was a dark and stormy night\2026";
   position: absolute;
   inset-block-start: 0;
   inset-inline-start: 0;
-  width: 195px;
-  height: 168px;
+  width: var(--snoopy-cover-width);
+  height: var(--snoopy-cover-height);
   z-index: 1;
   display: flex;
   align-items: flex-start;
   justify-content: center;
   box-sizing: border-box;
-  padding-block-start: 116px;
-  padding-inline-end: 48px;
+  padding-block-start: var(--snoopy-caption-top);
+  padding-inline-end: var(--snoopy-cover-gap);
   font: 600 13px/1.35 "American Typewriter", "Courier New", Courier, serif;
   text-align: center;
   color: var(--text-color);
   pointer-events: none;
-  background: url("assets/charlie-line-drive.png") no-repeat left top 30px / calc(100% - 48px) auto,
+  background: url("assets/charlie-line-drive.png") no-repeat left top 30px / calc(100% - var(--snoopy-cover-gap)) auto,
     var(--background-color-canvas);
 }
 

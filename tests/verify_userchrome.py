@@ -431,26 +431,32 @@ def run(label, extra_prefs, failures, dark=False):
         time.sleep(0.5)
         expect("LOCAL tag on file:// page", styles()["local"], '"LOCAL"', True)
 
-        m.set_context(m.CONTEXT_CONTENT)
-        try:
-            m.navigate("http://snoopy-does-not-exist.invalid/")
-        except Exception:
-            pass
-        time.sleep(1)
-        error_page = m.execute_script("""
-          const card = document.querySelector('body > net-error-card');
-          if (!card) return ['no error card', 'no error card'];
-          const c = card.getBoundingClientRect(), b = getComputedStyle(card, '::before');
-          const right = c.left + parseFloat(b.width), bottom = c.top + parseFloat(b.height);
-          const covered = [...card.shadowRoot.querySelectorAll('h1, h3, p, li, a, moz-button')].filter(el => {
-            const r = el.getBoundingClientRect();
-            return r.width && r.left < right + 8 && r.top < bottom + 4;
-          }).map(el => el.tagName.toLowerCase());
-          return [b.backgroundImage, covered.join(' ') || 'none'];
-        """)
-        m.set_context(m.CONTEXT_CHROME)
-        expect("Charlie Brown on the error page", sprite(error_page[0].split(",")[0]), "charlie-line-drive.png", True)
-        expect("Charlie Brown leaves the error text clear", error_page[1], "none", True)
+        # Server Not Found has Firefox's large illustration, File not found the small one.
+        for kind, url in [("Server Not Found", "http://snoopy-does-not-exist.invalid/"),
+                          ("File not found", (profile / "missing.xpi").as_uri())]:
+            m.set_context(m.CONTEXT_CONTENT)
+            try:
+                m.navigate(url)
+            except Exception:
+                pass
+            time.sleep(1)
+            error_page = m.execute_script("""
+              const card = document.querySelector('body > net-error-card');
+              if (!card) return ['no error card', 'no error card', 'no error card'];
+              const c = card.getBoundingClientRect(), b = getComputedStyle(card, '::before');
+              const right = c.left + parseFloat(b.width), bottom = c.top + parseFloat(b.height);
+              const covered = [...card.shadowRoot.querySelectorAll('h1, h3, p, li, a, moz-button')].filter(el => {
+                const r = el.getBoundingClientRect();
+                return r.width && r.left < right + 8 && r.top < bottom + 4;
+              }).map(el => el.tagName.toLowerCase());
+              const img = card.shadowRoot.querySelector('img').getBoundingClientRect();
+              const hidden = img.left >= c.left - 1 && img.right <= right + 1 && img.top >= c.top - 1 && img.bottom <= bottom + 1;
+              return [b.backgroundImage, covered.join(' ') || 'none', hidden ? 'hidden' : 'peeking out'];
+            """)
+            m.set_context(m.CONTEXT_CHROME)
+            expect(f"Charlie Brown on {kind}", sprite(error_page[0].split(",")[0]), "charlie-line-drive.png", True)
+            expect(f"Charlie Brown leaves the {kind} text clear", error_page[1], "none", True)
+            expect(f"Charlie Brown hides Firefox's {kind} illustration", error_page[2], "hidden", True)
 
         m.set_context(m.CONTEXT_CONTENT)
         m.navigate(f"{site}/article.html")
