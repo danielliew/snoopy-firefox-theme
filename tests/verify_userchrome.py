@@ -2,8 +2,7 @@
 
 Runs once with Firefox's default toolbar and once with flexible spaces around the URL bar.
 
-Usage: .venv/bin/python tests/verify_userchrome.py [path/to/firefox]
-Requires: pip install marionette_driver
+Usage: uv run tests/verify_userchrome.py [path/to/firefox]
 """
 
 import json

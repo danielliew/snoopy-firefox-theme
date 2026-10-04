@@ -37,12 +37,23 @@ Peanuts characters and artwork © Peanuts Worldwide LLC. This is a non-commercia
 
 **Theme:** open the [Try it link](https://github.com/danielliew/snoopy-firefox-theme/releases/latest/download/snoopy-vertical.xpi) in Firefox and click **Add**. If Firefox downloads the file instead, drag `snoopy-vertical.xpi` onto a Firefox window.
 
-**userChrome extras:**
+**userChrome extras** (macOS or Linux), in Terminal:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/danielliew/snoopy-firefox-theme/main/install.sh | sh
+```
+
+Then restart Firefox (Cmd+Q, then reopen). The script finds your default profile, moves any existing `chrome` folder to a dated backup, installs the latest `userChrome.zip`, and turns on `toolkit.legacyUserProfileCustomizations.stylesheets`. Run it again to update. Set `SNOOPY_PROFILE=/path/to/profile` to pick a different profile.
+
+<details>
+<summary>Manual install (or Windows)</summary>
 
 1. Download `userChrome.zip` from the [latest release](https://github.com/danielliew/snoopy-firefox-theme/releases/latest).
 2. In `about:config`, set `toolkit.legacyUserProfileCustomizations.stylesheets` to `true`.
-3. Open `about:support` → **Profile Folder** → **Show in Finder**, and unzip into a folder named `chrome` there (move any existing `chrome` folder aside first).
-4. Restart Firefox (Cmd+Q, then reopen).
+3. Open `about:support` → **Profile Folder** → **Open Folder**, and unzip into a folder named `chrome` there (move any existing `chrome` folder aside first).
+4. Restart Firefox.
+
+</details>
 
 ## Settings
 
@@ -88,22 +99,24 @@ Also need the userChrome extras.
 
 ## Development
 
+Uses [uv](https://docs.astral.sh/uv/) (`brew install uv`); it installs Python and the dependencies on first run.
+
 ```sh
-python3 -m venv .venv
-.venv/bin/pip install -r requirements.txt
-.venv/bin/python build.py
+uv run build.py          # build images, sprites.css, and the unsigned dist/snoopy-vertical.xpi
+uv run build.py check    # committed files match the source and stay under the size budgets
+uv run build.py bundle   # build, then collect dist/release/ (signed theme + userChrome.zip)
 ```
 
-This writes `theme/images/header.png`, the 2x (Retina) animations in `userChrome/assets/` (converted to Notion-style black-and-white line art, with half-speed copies in `slow/` and still frames in `still/`; color versions in `color/`, and a line-art cart in `ink/`), `userChrome/sprites.css` (the CSS that picks a file for each speed and color setting), the README previews in `docs/showcase/`, and `dist/snoopy-vertical.xpi`. Source art lives in `source/`; sizes and frame-rate caps are constants at the top of `build.py`.
+`build` writes `theme/images/header.png`, the 2x (Retina) animations in `userChrome/assets/` (converted to Notion-style black-and-white line art, with half-speed copies in `slow/` and still frames in `still/`; color versions in `color/`, and a line-art cart in `ink/`), `userChrome/sprites.css` (the CSS that picks a file for each speed and color setting), the README previews in `docs/showcase/`, and `dist/snoopy-vertical.xpi`. Source art lives in `source/`; sizes and frame-rate caps are constants at the top of `build.py`.
 
 Install [oxipng](https://github.com/shssoichiro/oxipng) (`brew install oxipng`) before building; it shrinks the images about 20% further, and the build skips it if it's missing.
 
-Checks (CI runs all three on every push):
+Checks (CI runs these on every push):
 
 ```sh
-.venv/bin/python build.py --check                 # committed images match the source and stay under the size budgets
+uv run build.py check
 npx web-ext lint --source-dir theme --self-hosted  # manifest and theme validation
-.venv/bin/pip install marionette_driver && .venv/bin/python tests/verify_userchrome.py
+uv run tests/verify_userchrome.py                  # userChrome in a throwaway headless Firefox
 ```
 
 `tests/verify_userchrome.py` starts a throwaway headless Firefox with the userChrome extras, checks the computed styles in both toolbar layouts, and flips each setting.
@@ -120,7 +133,7 @@ The theme is self-distributed: Mozilla signs it as an unlisted add-on, the signe
 2. Build and lint (`--self-hosted` allows the `update_url`):
 
    ```sh
-   .venv/bin/python build.py
+   uv run build.py
    npx web-ext lint --source-dir theme --self-hosted
    ```
 
@@ -141,15 +154,13 @@ The theme is self-distributed: Mozilla signs it as an unlisted add-on, the signe
    git push --follow-tags
    ```
 
-7. Publish the GitHub release. The `.xpi` must be named `snoopy-vertical.xpi` so the Try it link always gets the latest:
+7. Bundle and publish the GitHub release. `bundle` copies the signed file for the manifest's version to `dist/release/snoopy-vertical.xpi` (the name the Try it link and installer expect) and zips `userChrome/`:
 
    ```sh
-   mkdir -p dist/release
-   cp dist/signed/*-X.Y.Z.xpi dist/release/snoopy-vertical.xpi
-   (cd userChrome && zip -qr ../dist/release/userChrome.zip . -x '.*')
+   uv run build.py bundle
    gh release create vX.Y.Z dist/release/snoopy-vertical.xpi dist/release/userChrome.zip --title "vX.Y.Z" --notes "…"
    ```
 
 Signed files in `dist/` are not committed. Re-download any past signed version from the add-on's page in the [Developer Hub](https://addons.mozilla.org/developers/addons).
 
-Changes under `userChrome/` alone don't need a new signed theme, but publish a release so `userChrome.zip` stays current.
+Changes under `userChrome/` alone don't need a new signed theme or version bump: run `uv run build.py bundle` (it reuses the last signed theme) and publish a release so `userChrome.zip` and the installer stay current.

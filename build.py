@@ -2,6 +2,7 @@
 
 import argparse
 import io
+import json
 import shutil
 import subprocess
 import sys
@@ -100,7 +101,7 @@ LINE_ART = {"joe-cool"}
 SLOW_FACTOR = 2
 SPEEDS = ("normal", "slow", "still")
 
-# Size budgets checked by `build.py --check` (KB).
+# Size budgets checked by `uv run build.py check` (KB).
 BUDGET_ASSET_KB = 120
 BUDGET_ASSETS_TOTAL_KB = 1500
 BUDGET_XPI_KB = 100
@@ -447,10 +448,10 @@ def check(outputs):
     for path, (frames, durations, gray) in outputs.items():
         expected = [f.convert("LA").convert("RGBA") for f in frames] if gray else frames
         if not frames_match(path, expected, durations if len(frames) > 1 else durations[:0]):
-            problems.append(f"stale: {path.relative_to(ROOT)} (run build.py and commit)")
+            problems.append(f"stale: {path.relative_to(ROOT)} (run `uv run build.py` and commit)")
 
     if not SPRITES_CSS.exists() or SPRITES_CSS.read_text() != sprites_css():
-        problems.append(f"stale: {SPRITES_CSS.relative_to(ROOT)} (run build.py and commit)")
+        problems.append(f"stale: {SPRITES_CSS.relative_to(ROOT)} (run `uv run build.py` and commit)")
 
     assets = [p for p in ASSETS.rglob("*.png")]
     for p in assets:
@@ -469,15 +470,7 @@ def check(outputs):
     return not problems
 
 
-def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--check", action="store_true", help="verify committed images are current and within budget")
-    args = parser.parse_args()
-
-    outputs = all_outputs()
-    if args.check:
-        sys.exit(0 if check(outputs) else 1)
-
+def build(outputs):
     for path, (frames, durations, gray) in outputs.items():
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(encode_png(frames, durations, gray))
@@ -488,6 +481,52 @@ def main():
     xpi = package(THEME_DIR, DIST)
     total = sum(p.stat().st_size for p in ASSETS.rglob("*.png"))
     print(f"wrote {len(outputs)} images (userChrome assets {total // 1024} KB); packaged {xpi.relative_to(ROOT)} ({xpi.stat().st_size // 1024} KB)")
+
+
+def bundle():
+    """Collect release files in dist/release: the signed theme and userChrome.zip."""
+    version = json.loads((THEME_DIR / "manifest.json").read_text())["version"]
+    candidates = sorted((DIST / "signed").glob(f"*-{version}*.xpi"), key=lambda p: p.stat().st_mtime)
+    signed = candidates[-1] if candidates else DIST / "signed" / f"<hash>-{version}.xpi"
+    release = DIST / "release"
+    shutil.rmtree(release, ignore_errors=True)
+    release.mkdir(parents=True)
+
+    user_chrome = ROOT / "userChrome"
+    with zipfile.ZipFile(release / "userChrome.zip", "w", zipfile.ZIP_DEFLATED) as zf:
+        for f in sorted(user_chrome.rglob("*")):
+            rel = f.relative_to(user_chrome)
+            if f.is_file() and not any(part.startswith(".") for part in rel.parts):
+                zf.write(f, rel)
+    print(f"wrote {(release / 'userChrome.zip').relative_to(ROOT)}")
+
+    if not signed.exists():
+        print(f"no signed theme for {version} at {signed.relative_to(ROOT)}; sign it first (see README, Release)")
+        return False
+    shutil.copy(signed, release / "snoopy-vertical.xpi")
+    print(f"copied {signed.relative_to(ROOT)} -> {(release / 'snoopy-vertical.xpi').relative_to(ROOT)}")
+    return True
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "command",
+        nargs="?",
+        default="build",
+        choices=["build", "check", "bundle"],
+        help="build: write images, sprites.css and the unsigned .xpi (default); "
+        "check: verify committed files are current and within budget; "
+        "bundle: build, then collect release files in dist/release",
+    )
+    args = parser.parse_args()
+
+    outputs = all_outputs()
+    if args.command == "check":
+        sys.exit(0 if check(outputs) else 1)
+    build(outputs)
+    if args.command == "bundle":
+        sys.exit(0 if bundle() else 1)
 
 
 if __name__ == "__main__":
