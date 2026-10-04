@@ -176,7 +176,7 @@ The theme is self-distributed: Mozilla signs it as an unlisted add-on, the signe
    npx web-ext lint --source-dir theme --self-hosted
    ```
 
-3. Test with **Load Temporary Add-on…** (see above).
+3. Test with **Load Temporary Add-on…** (see above) and go through [Manual checks before a release](#manual-checks-before-a-release).
 4. Sign (takes a few minutes):
 
    ```sh
@@ -202,4 +202,4 @@ The theme is self-distributed: Mozilla signs it as an unlisted add-on, the signe
 
 Signed files in `dist/` are not committed. Re-download any past signed version from the add-on's page in the [Developer Hub](https://addons.mozilla.org/developers/addons).
 
-Changes under `userChrome/` alone don't need a new signed theme or version bump: run `uv run build.py bundle` (it reuses the last signed theme) and publish a release so `userChrome.zip` and the installer stay current.
+Changes under `userChrome/` alone don't need a new signed theme or version bump: go through the manual checks that apply, run `uv run build.py bundle` (it reuses the last signed theme) and publish a release so `userChrome.zip` and the installer stay current.
