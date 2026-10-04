@@ -121,6 +121,44 @@ def run(label, extra_prefs, failures):
         expect("Snoopy dances while the tab loads", sprite(styles()["left"]), "snoopy-dance.png", True)
         m.execute_script("gBrowser.selectedTab.removeAttribute('busy');")
 
+        m.execute_script("gBrowser.selectedTab.setAttribute('soundplaying', 'true');")
+        expect("Joe Cool while a tab plays sound", sprite(styles()["left"]), "joe-cool.png", True)
+        m.execute_script("gBrowser.selectedTab.setAttribute('muted', 'true');")
+        expect("muted tab brings Snoopy back", sprite(styles()["left"]), "snoopy-typing.png", True)
+        m.execute_script("gBrowser.selectedTab.removeAttribute('soundplaying'); gBrowser.selectedTab.removeAttribute('muted');")
+
+        skate = m.execute_script("""
+          BrowserCommands.openTab();
+          const stack = gBrowser.selectedTab.querySelector('.tab-stack');
+          const after = getComputedStyle(stack, '::after');
+          const anims = stack.getAnimations({subtree: true}).map(a => a.animationName + ':' + a.playState);
+          return {visibility: after.visibility, image: after.backgroundImage, anims: anims.join(',')};
+        """)
+        expect("new tab skater is visible", skate["visibility"], "visible", True)
+        expect("new tab skater has a skate sprite", sprite(skate["image"]), "skate-")
+        expect("new tab skate animation is running", skate["anims"], "snoopy-skate:running")
+        set_pref("snoopy.animations.paused", True)
+        hidden = m.execute_script("return getComputedStyle(gBrowser.selectedTab.querySelector('.tab-stack'), '::after').visibility;")
+        expect("paused hides the skater", hidden, "hidden", True)
+        set_pref("snoopy.animations.paused", False)
+        m.execute_script("gBrowser.removeTab(gBrowser.selectedTab);")
+
+        replays = m.execute_script("""
+          const tabs = [0, 1, 2].map(() => gBrowser.addTrustedTab('about:blank'));
+          return new Promise(resolve => setTimeout(() => {
+            gBrowser.selectedTab = tabs[1];
+            gBrowser.removeTab(tabs[0]);
+            const sidebar = document.querySelector('sidebar-main');
+            sidebar.toggleAttribute('expanded', false);
+            sidebar.toggleAttribute('expanded', true);
+            const running = gBrowser.tabs.flatMap(t => t.querySelector('.tab-stack').getAnimations({subtree: true}))
+              .filter(a => a.animationName === 'snoopy-skate' && a.playState === 'running').length;
+            tabs.slice(1).forEach(t => gBrowser.removeTab(t));
+            resolve(String(running));
+          }, 4500));
+        """, script_timeout=10000)
+        expect("switching, closing, and collapsing don't replay the skate", replays, "0", True)
+
         set_pref("snoopy.easter-eggs.off", True)
         expect("easter-eggs.off keeps Snoopy typing", sprite(styles()["left"]), "snoopy-typing.png", True)
 

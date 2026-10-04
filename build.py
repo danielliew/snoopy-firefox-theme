@@ -42,6 +42,10 @@ ASSET_HEIGHTS = {
     "snoopy-reading": 24,
     "doghouse-scene": 83,
     "snoopy-dozing": 83,
+    "joe-cool": 35,
+    "skate-ollie": 30,
+    "skate-jump": 30,
+    "skate-cruise": 30,
 }
 
 # README showcase renders, in px.
@@ -54,8 +58,24 @@ PAPER = (251, 245, 230, 255)
 KEEP_COLOR = {"woodstock-cart"}
 
 # Always-visible animations get a lower frame rate.
-ASSET_MIN_FRAME_MS = {"doghouse-scene": 80, "snoopy-dozing": 160}
+ASSET_MIN_FRAME_MS = {
+    "doghouse-scene": 80,
+    "snoopy-dozing": 160,
+    "skate-ollie": 80,
+    "skate-jump": 80,
+    "skate-cruise": 80,
+}
 STABILIZE = {"snoopy-dozing"}
+# Joe Cool cropped out of his Listening Lounge badge, above the animated lettering.
+JOE_BOX = (130, 40, 350, 282)
+# He only wobbles (hand-drawn line boil), so a few slow frames carry it.
+JOE_STEP, JOE_FRAME_MS = 13, 250
+# Skateboard loops travel across their canvas; userChrome moves them instead.
+IN_PLACE = {"skate-ollie", "skate-jump", "skate-cruise"}
+# Ollie and cruise ride right then back left; keep the leftward half, the way Snoopy faces.
+FRAME_SLICE = {"skate-ollie": slice(60, None), "skate-cruise": slice(60, None)}
+# Already black-and-white line art; ink() would turn its gray shading into speckles.
+LINE_ART = {"joe-cool"}
 
 # Variants selected by the snoopy.animations.* prefs in userChrome.css.
 SLOW_FACTOR = 2
@@ -63,7 +83,7 @@ VARIANT_DIRS = {"normal": ASSETS, "slow": ASSETS / "slow", "still": ASSETS / "st
 
 # Size budgets checked by `build.py --check` (KB).
 BUDGET_ASSET_KB = 120
-BUDGET_ASSETS_TOTAL_KB = 600
+BUDGET_ASSETS_TOTAL_KB = 900
 BUDGET_XPI_KB = 100
 
 
@@ -211,13 +231,43 @@ def encode_png(frames, durations, grayscale=False):
 
 def render_asset(name, frames, durations, height):
     frames = [clear_white_background(f) for f in frames]
+    if name in IN_PLACE:
+        frames = in_place(frames)
     box = union_bbox(frames)
     frames = fit_height([f.crop(box) for f in frames], height)
-    if name not in KEEP_COLOR:
+    if name in LINE_ART:
+        frames = [Image.merge("RGBA", (*[f.convert("L")] * 3, f.getchannel("A"))) for f in frames]
+    elif name not in KEEP_COLOR:
         frames = ink(frames)
     if name in STABILIZE:
         frames = stabilize(frames)
     return merge_still_frames(frames, durations, min_ms=ASSET_MIN_FRAME_MS.get(name, MIN_FRAME_MS))
+
+
+def joe_cool(frames):
+    """Drop the badge border and the red lettering, keeping Joe Cool at his turntable."""
+    out = []
+    for f in frames:
+        f = f.convert("RGBA")
+        r, g, b, a = f.split()
+        inside = a.point(lambda v: 255 if v > 128 else 0).filter(ImageFilter.MinFilter(25))
+        red = Image.merge("RGB", (r, g, b)).convert("HSV").getchannel("S").point(lambda v: 255 if v > 120 else 0)
+        f = Image.composite(Image.new("RGBA", f.size, (255, 255, 255, 255)), f, red)
+        f.putalpha(ImageChops.multiply(f.getchannel("A"), inside))
+        out.append(f.crop(JOE_BOX))
+    return out
+
+
+def in_place(frames):
+    """Re-center each frame horizontally so the sprite animates without traveling."""
+    boxes = [f.getchannel("A").getbbox() or (0, 0, 1, 1) for f in frames]
+    width = max(b[2] - b[0] for b in boxes)
+    out = []
+    for f, (x0, _, x1, _) in zip(frames, boxes):
+        canvas = Image.new("RGBA", (width, f.height), (0, 0, 0, 0))
+        canvas.paste(f.crop((x0, 0, x1, f.height)), ((width - (x1 - x0)) // 2, 0))
+        out.append(canvas)
+    return out
 
 
 def asset_outputs(name, frames, durations):
@@ -274,6 +324,13 @@ def all_outputs():
     }
     for name in ("snoopy-sleeping", "snoopy-dance", "snoopy-reading", "doghouse-scene", "snoopy-dozing"):
         sources[name] = load_frames(GIPHY / f"{name}.gif")
+    joe_frames, joe_durations = load_frames(GIPHY / "joe-cool.gif")
+    joe_frames = joe_cool(joe_frames[::JOE_STEP])
+    sources["joe-cool"] = (joe_frames, [JOE_FRAME_MS] * len(joe_frames))
+    for name in sorted(IN_PLACE):
+        frames, durations = load_frames(GIPHY / f"{name}.gif")
+        part = FRAME_SLICE.get(name, slice(None))
+        sources[name] = (frames[part], durations[part])
 
     outputs = header_output(source_frames, source_durations)
     for name, (frames, durations) in sources.items():

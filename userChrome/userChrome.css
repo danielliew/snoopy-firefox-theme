@@ -60,28 +60,38 @@ findbar {
    Create these as Boolean prefs in about:config; changes apply instantly.
      snoopy.animations.slow      half-speed animations
      snoopy.animations.paused    still sprites (also on with macOS Reduce motion)
-     snoopy.easter-eggs.off      no sleeping, dozing, or happy-dance swaps
+     snoopy.easter-eggs.off      no sleeping, dozing, Joe Cool, dancing, or skating
      snoopy.sidebar.hide-scene   no doghouse or reading Snoopy in the tab sidebar */
 
 :root {
   --snoopy-typing: url("assets/snoopy-typing.png");
   --woodstock-cart: url("assets/woodstock-cart.png");
+  --skate-duration: 1.8s;
   --snoopy-sleeping: url("assets/snoopy-sleeping.png");
   --snoopy-dance: url("assets/snoopy-dance.png");
   --doghouse-scene: url("assets/doghouse-scene.png");
   --snoopy-reading: url("assets/snoopy-reading.png");
   --snoopy-dozing: url("assets/snoopy-dozing.png");
+  --joe-cool: url("assets/joe-cool.png");
+  --skate-ollie: url("assets/skate-ollie.png");
+  --skate-jump: url("assets/skate-jump.png");
+  --skate-cruise: url("assets/skate-cruise.png");
 }
 
 @media -moz-pref("snoopy.animations.slow") {
   :root {
     --snoopy-typing: url("assets/slow/snoopy-typing.png");
     --woodstock-cart: url("assets/slow/woodstock-cart.png");
+    --skate-duration: 3.6s;
     --snoopy-sleeping: url("assets/slow/snoopy-sleeping.png");
     --snoopy-dance: url("assets/slow/snoopy-dance.png");
     --doghouse-scene: url("assets/slow/doghouse-scene.png");
     --snoopy-reading: url("assets/slow/snoopy-reading.png");
     --snoopy-dozing: url("assets/slow/snoopy-dozing.png");
+    --joe-cool: url("assets/slow/joe-cool.png");
+    --skate-ollie: url("assets/slow/skate-ollie.png");
+    --skate-jump: url("assets/slow/skate-jump.png");
+    --skate-cruise: url("assets/slow/skate-cruise.png");
   }
 }
 
@@ -94,6 +104,10 @@ findbar {
     --doghouse-scene: url("assets/still/doghouse-scene.png");
     --snoopy-reading: url("assets/still/snoopy-reading.png");
     --snoopy-dozing: url("assets/still/snoopy-dozing.png");
+    --joe-cool: url("assets/still/joe-cool.png");
+    --skate-ollie: url("assets/still/skate-ollie.png");
+    --skate-jump: url("assets/still/skate-jump.png");
+    --skate-cruise: url("assets/still/skate-cruise.png");
   }
 }
 
@@ -118,6 +132,12 @@ findbar {
   :root:-moz-window-inactive {
     --snoopy-left: var(--snoopy-sleeping);
     --snoopy-left-size: 22px 35px;
+  }
+
+  /* Easter egg: Joe Cool takes over while a tab is playing sound. */
+  :root:has(.tabbrowser-tab[soundplaying]:not([muted])) {
+    --snoopy-left: var(--joe-cool);
+    --snoopy-left-size: 35px 35px;
   }
 
   /* Easter egg: happy dance while the current page loads. */
@@ -179,6 +199,44 @@ sidebar-main:not([expanded]) > #vertical-tabs {
   sidebar-main[expanded] > #vertical-tabs:-moz-window-inactive {
     background-image: var(--snoopy-dozing);
     background-size: 61px 83px;
+  }
+}
+
+/* Easter egg: Snoopy skates across each new tab in the expanded sidebar.
+   The animation runs once when a tab element appears. Every tab shares one animation
+   name so tab position never restarts it; only direction and image vary. */
+@keyframes snoopy-skate {
+  from { background-position: left -50px center; }
+  to { background-position: right -50px center; }
+}
+
+#tabbrowser-tabs[orient="vertical"] .tab-stack::after {
+  content: "";
+  grid-area: 1 / 1;
+  pointer-events: none;
+  visibility: hidden;
+  background: var(--skate-jump) no-repeat;
+  background-size: auto 30px;
+  animation: snoopy-skate var(--skate-duration) linear both;
+}
+
+#tabbrowser-tabs[orient="vertical"] .tabbrowser-tab:nth-child(3n+1) > .tab-stack::after {
+  background-image: var(--skate-ollie);
+  animation-direction: reverse;
+}
+
+#tabbrowser-tabs[orient="vertical"] .tabbrowser-tab:nth-child(3n) > .tab-stack::after {
+  background-image: var(--skate-cruise);
+  animation-direction: reverse;
+}
+
+@media not -moz-pref("snoopy.easter-eggs.off") {
+  @media not -moz-pref("snoopy.animations.paused") {
+    @media (prefers-reduced-motion: no-preference) {
+      #tabbrowser-tabs[orient="vertical"][expanded] .tabbrowser-tab:not([pinned], [pending], [discarded]) > .tab-stack::after {
+        visibility: visible;
+      }
+    }
   }
 }
 
