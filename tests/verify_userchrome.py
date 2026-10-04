@@ -22,6 +22,7 @@ from PIL import Image, ImageChops
 ROOT = Path(__file__).resolve().parent.parent
 FIREFOX = sys.argv[1] if len(sys.argv) > 1 else "/Applications/Firefox.app/Contents/MacOS/firefox"
 PORT = 2829
+PAPER = "rgb(251, 245, 230)"
 
 BASE_PREFS = {
     "toolkit.legacyUserProfileCustomizations.stylesheets": True,
@@ -63,6 +64,8 @@ return {
   sidebar: style("#vertical-tabs").backgroundImage,
   sidebarPadding: style("#vertical-tabs").paddingBottom,
   navbarBg: style("#nav-bar").backgroundColor,
+  urlbarBg: style("#urlbar > .urlbar-background").backgroundColor,
+  tabboxRadius: style("#tabbrowser-tabbox").borderTopLeftRadius,
   tabText: style(".tabbrowser-tab").getPropertyValue("--tab-text-color").trim(),
   local: style("#identity-box", "::after").content,
 };
@@ -119,10 +122,13 @@ def run(label, extra_prefs, failures, dark=False):
         expect("Woodstock cart right of URL bar", sprite(s["right"]), "woodstock-cart.png", True)
         expect("Sidebar scene", sprite(s["sidebar"]), "doghouse-scene.png", True)
         if dark:
-            expect("dark mode keeps Firefox's toolbar color", "white" if s["navbarBg"] == "rgb(255, 255, 255)" else "kept", "kept", True)
+            expect("dark mode keeps Firefox's toolbar color", "paper" if s["navbarBg"] == PAPER else "kept", "kept", True)
             expect("dark mode keeps Firefox's tab text", "ink" if s["tabText"] == "#37352f" else "kept", "kept", True)
+            expect("dark mode keeps Firefox's content corners", s["tabboxRadius"], "0px", True)
         else:
-            expect("White nav bar", s["navbarBg"], "rgb(255, 255, 255)", True)
+            expect("Paper nav bar", s["navbarBg"], PAPER, True)
+            expect("White URL bar", s["urlbarBg"], "rgb(255, 255, 255)", True)
+            expect("Rounded page card", s["tabboxRadius"], "8px", True)
             expect("Ink tab text", s["tabText"], "#37352f", True)
 
         def resized(width, height):

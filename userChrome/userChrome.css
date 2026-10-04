@@ -8,6 +8,7 @@
   --peanuts-ink: #37352f;
   --peanuts-paper: #fbf5e6;
   --peanuts-paper-hover: #f3e8cf;
+  --peanuts-paper-border: #e8dcc0;
   --peanuts-zigzag: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='6'%3E%3Crect width='16' height='6' fill='%23f6c544'/%3E%3Cpath d='M0 4.5 4 1.5 8 4.5 12 1.5 16 4.5' fill='none' stroke='%2337352f' stroke-width='1.25'/%3E%3C/svg%3E");
 
   /* The theme's centered fallback sprites are replaced by the toolbar ones below. */
@@ -32,7 +33,28 @@
   }
 
   #nav-bar {
-    background-color: #ffffff !important;
+    background-color: var(--peanuts-paper) !important;
+  }
+
+  #navigator-toolbox {
+    border-bottom: none !important;
+  }
+
+  /* Page area as a rounded card on the paper, like the selected tab. */
+  :root:not([inDOMFullscreen]) #tabbrowser-tabbox {
+    margin: 0 8px 8px 0 !important;
+    border: 1px solid var(--peanuts-paper-border) !important;
+    border-radius: 8px !important;
+    overflow: clip !important;
+
+    &[sidebar-positionend] {
+      margin: 0 0 8px 8px !important;
+    }
+
+    > #tabbrowser-tabpanels > :not(.split-view-panel) .browserContainer {
+      border: none !important;
+      border-radius: 0 !important;
+    }
   }
 
   /* Charlie Brown zigzag along the top of the Cmd+F find bar. */
@@ -312,7 +334,7 @@
     --ink-shadow-sm: 2px 2px 0 var(--peanuts-ink);
     --ink-shadow-lg: 3px 3px 0 var(--peanuts-ink), rgba(15, 15, 15, 0.1) 0 9px 24px;
 
-    --urlbar-background-border-radius: 6px !important;
+    --urlbar-background-border-radius: 8px !important;
     --urlbar-background-border-focused: var(--notion-border) !important;
     --urlbar-background-border-open: var(--notion-border) !important;
     --urlbar-background-outline-focused: none !important;
@@ -324,7 +346,12 @@
     font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif !important;
   }
 
-  /* Firefox has no hover or focused-shadow tokens for the URL bar. */
+  /* White field on the paper toolbar; Firefox has no hover or focused-shadow tokens. */
+  #urlbar:not([focused], [open]) > .urlbar-background {
+    background-color: #ffffff !important;
+    border: 1px solid var(--peanuts-paper-border) !important;
+  }
+
   #urlbar:not([focused], [open]):hover > .urlbar-background {
     background-color: #ffffff !important;
     border: var(--notion-border) !important;
