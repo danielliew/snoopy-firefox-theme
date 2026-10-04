@@ -57,9 +57,12 @@ const bg = (sel, pseudo) => {
 };
 const left = bg("#stop-reload-button + toolbarspring");
 const right = bg("#urlbar-container + toolbarspring");
+const height = (sel, pseudo) => parseFloat(style(sel, pseudo).height) || document.querySelector(sel).getBoundingClientRect().height;
 return {
   left: left !== "none" ? left : bg("#urlbar-container", "::before"),
   right: right !== "none" ? right : bg("#urlbar-container", "::after"),
+  leftHeight: left !== "none" ? height("#stop-reload-button + toolbarspring") : height("#urlbar-container", "::before"),
+  rightHeight: right !== "none" ? height("#urlbar-container + toolbarspring") : height("#urlbar-container", "::after"),
   inactive: document.documentElement.matches(":-moz-window-inactive"),
   sidebar: style("#vertical-tabs", "::after").backgroundImage,
   sidebarPadding: style("#vertical-tabs").paddingBottom,
@@ -120,7 +123,35 @@ def run(label, extra_prefs, failures, dark=False):
         resting = "snoopy-sleeping.png" if s["inactive"] else "snoopy-typing.png"
         expect(f"Snoopy left of URL bar (window inactive: {s['inactive']})", sprite(s["left"]), resting, True)
         expect("Woodstock cart right of URL bar", sprite(s["right"]), "woodstock-cart.png", True)
+        expect(f"URL bar sprites have room to paint ({s['leftHeight']}px, {s['rightHeight']}px)",
+               s["leftHeight"] >= 26 and s["rightHeight"] >= 26, True, True)
         expect("Sidebar scene", sprite(s["sidebar"]), "doghouse-scene.png", True)
+
+        def click(x, y, hover_ms=300):
+            m.actions.sequence("pointer", "mouse", {"pointerType": "mouse"}).pointer_move(
+                int(x), int(y), origin="viewport").pause(hover_ms).pointer_down(0).pause(80).pointer_up(0).perform()
+            m.actions.release()
+            time.sleep(0.3)
+
+        def reacting(sel, pseudo):
+            return float(m.execute_script(
+                "return getComputedStyle(document.querySelector(arguments[0]), arguments[1]).getPropertyValue('--snoopy-react');",
+                script_args=[sel, pseudo]) or 0) > 0
+
+        center = "const r = (typeof arguments[0] === 'string' ? document.querySelector(arguments[0]) : arguments[0]).getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2];"
+        tab = m.execute_script("const r = gBrowser.selectedTab.getBoundingClientRect(); return [r.left + 40, r.top + r.height / 2];")
+        click(*tab)
+        expect("clicking a tab leaves the doghouse alone", reacting("#vertical-tabs", "::before"), False, True)
+        dog = m.execute_script("const r = document.getElementById('vertical-tabs').getBoundingClientRect(); return [r.left + r.width / 2, r.bottom - 40];")
+        click(*dog)
+        expect("clicking the doghouse plays a reaction", reacting("#vertical-tabs", "::before"), True, True)
+        click(*m.execute_script(center, script_args=["#back-button"]))
+        expect("clicking a toolbar button doesn't send a skater", reacting("#nav-bar", "::after"), False, True)
+        open_space = m.execute_script(
+            "return [...document.querySelectorAll('#nav-bar-customization-target > toolbarspring')].pop();")
+        click(*m.execute_script(center, script_args=[open_space]))
+        expect("clicking open toolbar space sends a skater", reacting("#nav-bar", "::after"), True, True)
+        time.sleep(3)
         if dark:
             expect("dark mode keeps Firefox's toolbar color", "paper" if s["navbarBg"] == PAPER else "kept", "kept", True)
             expect("dark mode keeps Firefox's tab text", "ink" if s["tabText"] == "#37352f" else "kept", "kept", True)

@@ -4,6 +4,27 @@
 
 @import url("sprites.css");
 
+/* Click easter eggs. CSS can't remember clicks, so a press sets --snoopy-react to 1
+   and snapshots --snoopy-phase (a timer that only ticks while hovering) into
+   --snoopy-pick; on release, transitions count --snoopy-react down and hold the pick. */
+@property --snoopy-react {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
+
+@property --snoopy-phase {
+  syntax: "<integer>";
+  inherits: false;
+  initial-value: 0;
+}
+
+@property --snoopy-pick {
+  syntax: "<integer>";
+  inherits: false;
+  initial-value: 0;
+}
+
 :root {
   --peanuts-ink: #37352f;
   --peanuts-paper: #fbf5e6;
@@ -119,11 +140,13 @@
 
 :root {
   --skate-duration: 1.8s;
+  --react-duration: 3s;
 }
 
 @media -moz-pref("snoopy.animations.slow") {
   :root {
     --skate-duration: 3.6s;
+    --react-duration: 6s;
   }
 }
 
@@ -156,9 +179,12 @@
   }
 }
 
+/* The URL bar's container centers its children, so the pseudo-elements need a height. */
 #urlbar-container::before,
 #urlbar-container::after {
   flex: none;
+  height: 35px;
+  align-self: center;
 }
 
 /* Narrow windows give the space back to the URL bar: the cart steps aside first. */
@@ -208,6 +234,8 @@
   height: var(--sidebar-scene-room);
   background: var(--sidebar-scene) no-repeat center bottom 4px / var(--sidebar-scene-size);
   pointer-events: none;
+  /* Steps aside while a click reaction plays. */
+  opacity: calc(1 - min(1, var(--snoopy-react) * 1000));
 }
 
 sidebar-main[sidebar-ongoing-animations] > #vertical-tabs::after {
@@ -216,7 +244,7 @@ sidebar-main[sidebar-ongoing-animations] > #vertical-tabs::after {
 
 @media (prefers-reduced-motion: no-preference) {
   sidebar-main:not([sidebar-ongoing-animations]) > #vertical-tabs::after {
-    transition: opacity 220ms ease-out;
+    transition: opacity 220ms ease-out, --snoopy-react 0s var(--react-duration);
   }
 }
 
@@ -288,6 +316,71 @@ sidebar-main[sidebar-ongoing-animations] > #vertical-tabs::after {
     @media (prefers-reduced-motion: no-preference) {
       #tabbrowser-tabs[orient="vertical"][expanded] .tabbrowser-tab:not([pinned], [pending], [discarded]) > .tab-stack::after {
         visibility: visible;
+      }
+    }
+  }
+}
+
+/* Easter egg: clicking the doghouse plays a happy dance, Joe Cool, or a skater
+   crossing the sidebar; clicking empty toolbar space sends a skater across the
+   toolbar. Layers are hidden with zero height until --snoopy-pick selects them. */
+@keyframes snoopy-pick {
+  from { --snoopy-phase: 0; }
+  to { --snoopy-phase: 3; }
+}
+
+#vertical-tabs::before,
+#nav-bar::after {
+  --pick-0: max(0, 1 - abs(var(--snoopy-pick)));
+  --pick-1: max(0, 1 - abs(var(--snoopy-pick) - 1));
+  --pick-2: max(0, 1 - abs(var(--snoopy-pick) - 2));
+  --trip: calc(1 - var(--snoopy-react));
+  position: absolute;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  opacity: min(1, var(--snoopy-react) * 1000);
+  animation: snoopy-pick 2.1s steps(3) infinite paused;
+  transition: --snoopy-react var(--react-duration) linear, --snoopy-pick 0s var(--react-duration);
+}
+
+#vertical-tabs::before {
+  inset: auto 0 0;
+  height: var(--sidebar-scene-room);
+  background-image: var(--snoopy-dance), var(--joe-cool), var(--skate-jump);
+  background-size: auto calc(var(--pick-0) * 35px), auto calc(var(--pick-1) * 35px), auto calc(var(--pick-2) * 30px);
+  background-position: center bottom 4px, center bottom 4px, left calc(var(--trip) * 100%) bottom 4px;
+}
+
+#nav-bar::after {
+  inset: 0 -40px;
+  z-index: 3;
+  background-image: var(--skate-jump), var(--skate-ollie), var(--skate-cruise);
+  background-size: auto calc(var(--pick-0) * 30px), auto calc(var(--pick-1) * 30px), auto calc(var(--pick-2) * 30px);
+  background-position: calc(var(--trip) * 100%) center, calc(var(--snoopy-react) * 100%) center, calc(var(--snoopy-react) * 100%) center;
+}
+
+@media not -moz-pref("snoopy.easter-eggs.off") {
+  @media not -moz-pref("snoopy.animations.paused") {
+    @media (prefers-reduced-motion: no-preference) {
+      #vertical-tabs::before,
+      #nav-bar::after {
+        content: "";
+      }
+
+      sidebar-main[expanded] > #vertical-tabs:hover::before,
+      #nav-bar:hover::after {
+        animation-play-state: running;
+      }
+
+      /* Only presses on the scene itself (no tab or button under the pointer). */
+      sidebar-main[expanded] > #vertical-tabs:active:not(:has(:active)),
+      #nav-bar:active:not(:has(:is(toolbarbutton, #urlbar, toolbaritem:not(#urlbar-container, #vertical-spacer)):active)) {
+        &::before,
+        &::after {
+          --snoopy-react: 1;
+          --snoopy-pick: var(--snoopy-phase);
+          transition: none;
+        }
       }
     }
   }
