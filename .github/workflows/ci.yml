@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  assets:
+    name: Assets up to date and within budget
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: python build.py --check
+
+  lint:
+    name: web-ext lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npx -y web-ext lint --source-dir theme --self-hosted
+
+  userchrome:
+    name: userChrome.css in headless Firefox
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - uses: browser-actions/setup-firefox@v1
+        with:
+          firefox-version: latest
+      - run: pip install marionette_driver
+      - run: python tests/verify_userchrome.py "$(which firefox)"

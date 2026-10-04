@@ -1,5 +1,10 @@
 """Build the Snoopy theme and userChrome assets, and package the theme as an .xpi."""
 
+import argparse
+import io
+import shutil
+import subprocess
+import sys
 import zipfile
 from pathlib import Path
 
@@ -49,6 +54,15 @@ KEEP_COLOR = {"woodstock-cart"}
 
 # Always-visible animations get a lower frame rate.
 ASSET_MIN_FRAME_MS = {"doghouse-scene": 80}
+
+# Variants selected by the snoopy.animations.* prefs in userChrome.css.
+SLOW_FACTOR = 2
+VARIANT_DIRS = {"normal": ASSETS, "slow": ASSETS / "slow", "still": ASSETS / "still"}
+
+# Size budgets checked by `build.py --check` (KB).
+BUDGET_ASSET_KB = 120
+BUDGET_ASSETS_TOTAL_KB = 500
+BUDGET_XPI_KB = 100
 
 
 def load_frames(path):
@@ -149,20 +163,33 @@ def merge_still_frames(frames, durations, threshold=16, min_ms=0):
     return kept, kept_durations
 
 
-def save_apng(frames, durations, path):
-    path.parent.mkdir(parents=True, exist_ok=True)
+def encode_png(frames, durations, grayscale=False):
+    """Encode frames as PNG/APNG bytes, then losslessly recompress with oxipng if available."""
+    if grayscale:
+        frames = [f.convert("LA") for f in frames]
+    buf = io.BytesIO()
     if len(frames) == 1:
-        frames[0].save(path, optimize=True)
-        return
-    frames[0].save(
-        path,
-        save_all=True,
-        append_images=frames[1:],
-        duration=durations,
-        loop=0,
-        disposal=0,
-        blend=0,
-    )
+        frames[0].save(buf, format="PNG", optimize=True)
+    else:
+        frames[0].save(
+            buf,
+            format="PNG",
+            save_all=True,
+            append_images=frames[1:],
+            duration=durations,
+            loop=0,
+            disposal=0,
+            blend=0,
+        )
+    data = buf.getvalue()
+    if shutil.which("oxipng"):
+        data = subprocess.run(
+            ["oxipng", "--opt", "4", "--strip", "safe", "--quiet", "-"],
+            input=data,
+            stdout=subprocess.PIPE,
+            check=True,
+        ).stdout
+    return data
 
 
 def render_asset(name, frames, durations, height):
@@ -174,31 +201,32 @@ def render_asset(name, frames, durations, height):
     return merge_still_frames(frames, durations, min_ms=ASSET_MIN_FRAME_MS.get(name, MIN_FRAME_MS))
 
 
-def build_asset(name, frames, durations):
+def asset_outputs(name, frames, durations):
+    """Every file written for one userChrome asset, as {path: (frames, durations, grayscale)}."""
     frames, durations = render_asset(name, frames, durations, ASSET_HEIGHTS[name] * SCALE)
-    path = ASSETS / f"{name}.png"
-    save_apng(frames, durations, path)
-    w, h = frames[0].size
-    print(f"  {name}: {len(frames)} frames, {w // SCALE}x{h // SCALE} css px, {path.stat().st_size // 1024} KB")
-    return frames, durations
+    gray = name not in KEEP_COLOR
+    return {
+        VARIANT_DIRS["normal"] / f"{name}.png": (frames, durations, gray),
+        VARIANT_DIRS["slow"] / f"{name}.png": (frames, [d * SLOW_FACTOR for d in durations], gray),
+        VARIANT_DIRS["still"] / f"{name}.png": (frames[:1], durations[:1], gray),
+    }
 
 
-def build_showcase(name, frames, durations):
+def showcase_output(name, frames, durations):
     """README preview on paper, so the black ink shows on GitHub's dark mode too."""
     height = SHOWCASE_HEIGHTS.get(name, SHOWCASE_HEIGHT)
     frames, durations = render_asset(name, frames, durations, height)
     pad = 16
     w, h = frames[0].size
-    canvas_size = (w + 2 * pad, SHOWCASE_HEIGHTS.get(name, SHOWCASE_HEIGHT) + 2 * pad)
     tiles = []
     for frame in frames:
-        tile = Image.new("RGBA", canvas_size, PAPER)
+        tile = Image.new("RGBA", (w + 2 * pad, height + 2 * pad), PAPER)
         tile.alpha_composite(frame, (pad, pad))
         tiles.append(tile.convert("RGB"))
-    save_apng(tiles, durations, SHOWCASE / f"{name}.png")
+    return {SHOWCASE / f"{name}.png": (tiles, durations, False)}
 
 
-def build_header(source_frames, durations):
+def header_output(source_frames, durations):
     sprites = {
         "left": [clear_white_background(f.crop(TYPING_BOX)) for f in source_frames],
         "right": [clear_white_background(f.crop(CART_BOX)) for f in source_frames],
@@ -216,8 +244,23 @@ def build_header(source_frames, durations):
         canvas.paste(right, (half + RIGHT_GAP, (HEADER_HEIGHT - right.height) // 2))
         frames.append(canvas)
     frames, durations = merge_still_frames(frames, durations)
-    save_apng(frames, durations, HEADER_OUT)
-    print(f"  theme header: {len(frames)} frames, {frames[0].width}x{frames[0].height}")
+    return {HEADER_OUT: (frames, durations, False)}
+
+
+def all_outputs():
+    source_frames, source_durations = load_frames(SOURCE)
+    sources = {
+        "snoopy-typing": ([f.crop(TYPING_BOX) for f in source_frames], source_durations),
+        "woodstock-cart": ([f.crop(CART_BOX) for f in source_frames], source_durations),
+    }
+    for name in ("snoopy-sleeping", "snoopy-dance", "woodstock-flying", "doghouse-scene"):
+        sources[name] = load_frames(GIPHY / f"{name}.gif")
+
+    outputs = header_output(source_frames, source_durations)
+    for name, (frames, durations) in sources.items():
+        outputs.update(asset_outputs(name, frames, durations))
+        outputs.update(showcase_output(name, frames, durations))
+    return outputs
 
 
 def package(theme_dir, dist):
@@ -230,28 +273,58 @@ def package(theme_dir, dist):
     return xpi
 
 
-def main():
-    source_frames, source_durations = load_frames(SOURCE)
-    print("theme:")
-    build_header(source_frames, source_durations)
+def frames_match(path, frames, durations):
+    if not path.exists():
+        return False
+    got, got_durations = load_frames(path)
+    if len(got) != len(frames) or got_durations[: len(durations)] != durations[: len(got_durations)]:
+        return False
+    return all(ImageChops.difference(a, b.convert("RGBA")).getbbox(alpha_only=False) is None for a, b in zip(got, frames))
 
-    sources = {
-        "snoopy-typing": ([f.crop(TYPING_BOX) for f in source_frames], source_durations),
-        "woodstock-cart": ([f.crop(CART_BOX) for f in source_frames], source_durations),
-    }
-    for name in ("snoopy-sleeping", "snoopy-dance", "woodstock-flying", "doghouse-scene"):
-        sources[name] = load_frames(GIPHY / f"{name}.gif")
 
-    print("userChrome assets:")
-    for name, (frames, durations) in sources.items():
-        build_asset(name, frames, durations)
+def check(outputs):
+    """Fail if committed images are stale or over budget. Compares decoded pixels, not bytes."""
+    problems = []
+    for path, (frames, durations, gray) in outputs.items():
+        expected = [f.convert("LA").convert("RGBA") for f in frames] if gray else frames
+        if not frames_match(path, expected, durations if len(frames) > 1 else durations[:0]):
+            problems.append(f"stale: {path.relative_to(ROOT)} (run build.py and commit)")
 
-    for name, (frames, durations) in sources.items():
-        build_showcase(name, frames, durations)
-    print(f"showcase: {len(sources)} previews in {SHOWCASE.relative_to(ROOT)}")
-
+    assets = [p for p in ASSETS.rglob("*.png")]
+    for p in assets:
+        if p.stat().st_size > BUDGET_ASSET_KB * 1024:
+            problems.append(f"over budget: {p.relative_to(ROOT)} is {p.stat().st_size // 1024} KB (max {BUDGET_ASSET_KB} KB)")
+    total = sum(p.stat().st_size for p in assets)
+    if total > BUDGET_ASSETS_TOTAL_KB * 1024:
+        problems.append(f"over budget: userChrome/assets is {total // 1024} KB (max {BUDGET_ASSETS_TOTAL_KB} KB)")
     xpi = package(THEME_DIR, DIST)
-    print(f"packaged {xpi.relative_to(ROOT)}")
+    if xpi.stat().st_size > BUDGET_XPI_KB * 1024:
+        problems.append(f"over budget: theme .xpi is {xpi.stat().st_size // 1024} KB (max {BUDGET_XPI_KB} KB)")
+
+    for line in problems:
+        print(line)
+    print(f"checked {len(outputs)} images; assets {total // 1024} KB, xpi {xpi.stat().st_size // 1024} KB")
+    return not problems
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--check", action="store_true", help="verify committed images are current and within budget")
+    args = parser.parse_args()
+
+    outputs = all_outputs()
+    if args.check:
+        sys.exit(0 if check(outputs) else 1)
+
+    for path, (frames, durations, gray) in outputs.items():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(encode_png(frames, durations, gray))
+    for name in ASSET_HEIGHTS:
+        p = ASSETS / f"{name}.png"
+        print(f"  {p.relative_to(ROOT)}: {p.stat().st_size // 1024} KB")
+    xpi = package(THEME_DIR, DIST)
+    total = sum(p.stat().st_size for p in ASSETS.rglob("*.png"))
+    print(f"wrote {len(outputs)} images (userChrome assets {total // 1024} KB); packaged {xpi.relative_to(ROOT)} ({xpi.stat().st_size // 1024} KB)")
 
 
 if __name__ == "__main__":

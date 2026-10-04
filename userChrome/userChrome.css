@@ -56,37 +56,101 @@ findbar {
   border-top: none !important;
 }
 
-/* ---------- Sprites in the flexible spaces around the URL bar ---------- */
+/* ---------- Settings ----------
+   Create these as Boolean prefs in about:config; changes apply instantly.
+     snoopy.animations.slow      half-speed animations
+     snoopy.animations.paused    still sprites (also on with macOS Reduce motion)
+     snoopy.easter-eggs.off      no sleeping or happy-dance swaps
+     snoopy.sidebar.hide-scene   no doghouse or Woodstock in the tab sidebar */
+
+:root {
+  --snoopy-typing: url("assets/snoopy-typing.png");
+  --woodstock-cart: url("assets/woodstock-cart.png");
+  --snoopy-sleeping: url("assets/snoopy-sleeping.png");
+  --snoopy-dance: url("assets/snoopy-dance.png");
+  --doghouse-scene: url("assets/doghouse-scene.png");
+  --woodstock-flying: url("assets/woodstock-flying.png");
+}
+
+@media -moz-pref("snoopy.animations.slow") {
+  :root {
+    --snoopy-typing: url("assets/slow/snoopy-typing.png");
+    --woodstock-cart: url("assets/slow/woodstock-cart.png");
+    --snoopy-sleeping: url("assets/slow/snoopy-sleeping.png");
+    --snoopy-dance: url("assets/slow/snoopy-dance.png");
+    --doghouse-scene: url("assets/slow/doghouse-scene.png");
+    --woodstock-flying: url("assets/slow/woodstock-flying.png");
+  }
+}
+
+@media -moz-pref("snoopy.animations.paused"), (prefers-reduced-motion: reduce) {
+  :root {
+    --snoopy-typing: url("assets/still/snoopy-typing.png");
+    --woodstock-cart: url("assets/still/woodstock-cart.png");
+    --snoopy-sleeping: url("assets/still/snoopy-sleeping.png");
+    --snoopy-dance: url("assets/still/snoopy-dance.png");
+    --doghouse-scene: url("assets/still/doghouse-scene.png");
+    --woodstock-flying: url("assets/still/woodstock-flying.png");
+  }
+}
+
+@media -moz-pref("snoopy.sidebar.hide-scene") {
+  sidebar-main:is([expanded], :not([expanded])) > #vertical-tabs {
+    background-image: none;
+    padding-bottom: 0 !important;
+  }
+}
+
+/* ---------- Sprites beside the URL bar ----------
+   Snoopy sits in the flexible space after reload and Woodstock in the one after the
+   URL bar. Without those spaces (Firefox's default layout) they flank the URL bar. */
+
+:root {
+  --snoopy-left: var(--snoopy-typing);
+  --snoopy-left-size: 59px 35px;
+}
+
+@media not -moz-pref("snoopy.easter-eggs.off") {
+  /* Easter egg: Snoopy naps on his doghouse while the window is in the background. */
+  :root:-moz-window-inactive {
+    --snoopy-left: var(--snoopy-sleeping);
+    --snoopy-left-size: 22px 35px;
+  }
+
+  /* Easter egg: happy dance while the current page loads. */
+  :root:has(.tabbrowser-tab[selected][busy]) {
+    --snoopy-left: var(--snoopy-dance);
+    --snoopy-left-size: 20px 35px;
+  }
+}
 
 #stop-reload-button + toolbarspring,
-#urlbar-container + toolbarspring {
+#urlbar-container + toolbarspring,
+#nav-bar-customization-target:not(:has(> #stop-reload-button + toolbarspring)) > #urlbar-container::before,
+#nav-bar-customization-target:not(:has(> #urlbar-container + toolbarspring)) > #urlbar-container::after {
   min-width: 72px !important;
   background-repeat: no-repeat !important;
 }
 
-#stop-reload-button + toolbarspring {
-  background-image: url("assets/snoopy-typing.png");
-  background-size: 59px 35px;
+#urlbar-container::before,
+#urlbar-container::after {
+  flex: none;
+}
+
+#stop-reload-button + toolbarspring,
+#nav-bar-customization-target:not(:has(> #stop-reload-button + toolbarspring)) > #urlbar-container::before {
+  content: "";
+  background-image: var(--snoopy-left);
+  background-size: var(--snoopy-left-size);
   background-position: left 4px center;
 }
 
-#urlbar-container + toolbarspring {
-  background-image: url("assets/woodstock-cart.png");
+#urlbar-container + toolbarspring,
+#nav-bar-customization-target:not(:has(> #urlbar-container + toolbarspring)) > #urlbar-container::after {
+  content: "";
+  background-image: var(--woodstock-cart);
   background-size: 34px 26px;
   background-position: right 4px center;
-}
-
-/* Easter egg: Snoopy naps on his doghouse while the window is in the background. */
-#stop-reload-button + toolbarspring:-moz-window-inactive {
-  background-image: url("assets/snoopy-sleeping.png");
-  background-size: 22px 35px;
-}
-
-/* Easter egg: happy dance while the current page loads. */
-#nav-bar-customization-target:has(#reload-button[displaystop]) > #stop-reload-button + toolbarspring {
-  background-image: url("assets/snoopy-dance.png");
-  background-size: 20px 35px;
-  background-position: left 4px center;
 }
 
 /* ---------- Vertical tab sidebar ---------- */
@@ -94,7 +158,7 @@ findbar {
 /* Easter egg: Snoopy's doghouse at the bottom of the expanded sidebar,
    a lone Woodstock when collapsed. Padding keeps tabs from covering it. */
 #vertical-tabs {
-  background-image: url("assets/doghouse-scene.png");
+  background-image: var(--doghouse-scene);
   background-size: 180px 83px;
   background-repeat: no-repeat;
   background-position: center bottom 4px;
@@ -102,7 +166,7 @@ findbar {
 }
 
 sidebar-main:not([expanded]) > #vertical-tabs {
-  background-image: url("assets/woodstock-flying.png");
+  background-image: var(--woodstock-flying);
   background-size: 23px 22px;
   padding-bottom: 30px !important;
 }

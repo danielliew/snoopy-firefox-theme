@@ -22,7 +22,7 @@ Firefox theme based on [Snoopy (animated)](https://addons.mozilla.org/firefox/ad
 It has two parts:
 
 - **Theme** (the link above): Peanuts colors (paper tab sidebar, inked selected tab and URL bar) and a black-and-white Snoopy animation. Signed by Mozilla and updates automatically.
-- **userChrome extras** (optional): CSS for what themes can't do: sprites pinned next to the reload button and URL bar, a Charlie Brown zigzag on the Cmd+F find bar, a Notion-style URL bar, developer signals, matching DevTools, and easter eggs.
+- **userChrome extras** (optional): CSS for what themes can't do: sprites beside the URL bar, live settings, a Charlie Brown zigzag on the Cmd+F find bar, a Notion-style URL bar, developer signals, matching DevTools, and easter eggs.
 
 Peanuts characters and artwork © Peanuts Worldwide LLC. This is a non-commercial fan project. Animations from the official [Peanuts GIPHY account](https://giphy.com/peanuts): [sleeping](https://giphy.com/gifs/2rJw85F0vFJN0SLn3X), [happy dance](https://giphy.com/gifs/7xIMPoVGL2yzu), [Woodstock flying](https://giphy.com/gifs/jptAHfCnH8rSgVSjcE), [doghouse](https://giphy.com/gifs/SvKTWdJjUDcklNyQ0k).
 
@@ -36,6 +36,21 @@ Peanuts characters and artwork © Peanuts Worldwide LLC. This is a non-commercia
 2. In `about:config`, set `toolkit.legacyUserProfileCustomizations.stylesheets` to `true`.
 3. Open `about:support` → **Profile Folder** → **Show in Finder**, and unzip into a folder named `chrome` there (move any existing `chrome` folder aside first).
 4. Restart Firefox (Cmd+Q, then reopen).
+
+## Settings
+
+Themes can't have settings, so the userChrome extras read their own `about:config` prefs and apply changes instantly, no restart needed. In `about:config`, search for the name, choose **Boolean**, click **+**, and set it to `true`:
+
+| Pref | Effect |
+| --- | --- |
+| `snoopy.animations.slow` | Animations play at half speed. |
+| `snoopy.animations.paused` | Every sprite holds still. |
+| `snoopy.easter-eggs.off` | Snoopy keeps typing instead of sleeping or dancing. |
+| `snoopy.sidebar.hide-scene` | No doghouse or Woodstock in the tab sidebar. |
+
+Animations also pause on their own when **Reduce motion** is on (macOS System Settings → Accessibility → Display).
+
+Snoopy sits in the flexible space after the reload button and Woodstock in the one after the URL bar. If your toolbar doesn't have those (Firefox's default layout), they sit on either side of the URL bar instead. To move them, right-click the toolbar → **Customize Toolbar…** and drag in **Flexible Space** items.
 
 ## Easter eggs
 
@@ -64,7 +79,19 @@ python3 -m venv .venv
 .venv/bin/python build.py
 ```
 
-This writes `theme/images/header.png`, the 2x (Retina) animations in `userChrome/assets/` (converted to Notion-style black-and-white line art), the README previews in `docs/showcase/`, and `dist/snoopy-vertical.xpi`. Source art lives in `source/`; sizes and frame-rate caps are constants at the top of `build.py`.
+This writes `theme/images/header.png`, the 2x (Retina) animations in `userChrome/assets/` (converted to Notion-style black-and-white line art, with half-speed copies in `slow/` and still frames in `still/`), the README previews in `docs/showcase/`, and `dist/snoopy-vertical.xpi`. Source art lives in `source/`; sizes and frame-rate caps are constants at the top of `build.py`.
+
+Install [oxipng](https://github.com/shssoichiro/oxipng) (`brew install oxipng`) before building; it shrinks the images about 20% further, and the build skips it if it's missing.
+
+Checks (CI runs all three on every push):
+
+```sh
+.venv/bin/python build.py --check                 # committed images match the source and stay under the size budgets
+npx web-ext lint --source-dir theme --self-hosted  # manifest and theme validation
+.venv/bin/pip install marionette_driver && .venv/bin/python tests/verify_userchrome.py
+```
+
+`tests/verify_userchrome.py` starts a throwaway headless Firefox with the userChrome extras, checks the computed styles in both toolbar layouts, and flips each setting.
 
 To test the theme without signing: `about:debugging#/runtime/this-firefox` → **Load Temporary Add-on…** → pick `theme/manifest.json`. Click **Reload** there after rebuilding. Temporary add-ons are removed when Firefox restarts.
 
