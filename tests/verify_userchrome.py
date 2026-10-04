@@ -369,6 +369,15 @@ def run(label, extra_prefs, failures, dark=False):
         expect(f"Tab icons keep their inset when the sidebar toggles ({expanded_x}px / {collapsed_x}px)",
                expanded_x, collapsed_x, True)
 
+        inline_margins = m.execute_script("""
+          const box = document.getElementById('tabbrowser-tabbox');
+          box.style.marginLeft = box.style.marginRight = '-33px';
+          const s = getComputedStyle(box), got = s.marginLeft + ' ' + s.marginRight;
+          box.style.marginLeft = box.style.marginRight = '';
+          return got;
+        """)
+        expect("sidebar animation and expand-on-hover can position the page card", inline_margins, "-33px -33px", True)
+
         open_tabs = m.execute_script("""
           const n = gBrowser.tabs.length, selected = gBrowser.selectedTab;
           for (let i = 0; i < 30; i++) gBrowser.addTrustedTab('about:blank');

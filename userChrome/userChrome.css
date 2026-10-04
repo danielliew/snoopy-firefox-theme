@@ -71,16 +71,22 @@
     border-bottom: none !important;
   }
 
-  /* Page area as a rounded card on the paper, like the selected tab. */
+  /* Page area as a rounded card on the paper, like the selected tab. The side gap is
+     padding on #browser: the sidebar animation and expand-on-hover position the card
+     with inline side margins, which an !important margin here would override. */
+  :root:not([inDOMFullscreen]) #browser {
+    padding-inline-end: 8px;
+
+    &:has(> #tabbrowser-tabbox[sidebar-positionend]) {
+      padding-inline: 8px 0;
+    }
+  }
+
   :root:not([inDOMFullscreen]) #tabbrowser-tabbox {
-    margin: 0 8px 8px 0 !important;
+    margin-block: 0 8px !important;
     border: 1px solid var(--peanuts-paper-border) !important;
     border-radius: 8px !important;
     overflow: clip !important;
-
-    &[sidebar-positionend] {
-      margin: 0 0 8px 8px !important;
-    }
 
     > #tabbrowser-tabpanels > :not(.split-view-panel) .browserContainer {
       border: none !important;
