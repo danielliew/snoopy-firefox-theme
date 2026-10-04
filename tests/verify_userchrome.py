@@ -147,9 +147,13 @@ def run(label, extra_prefs, failures, dark=False):
         expect("clicking the doghouse plays a reaction", reacting("#vertical-tabs", "::before"), True, True)
         click(*m.execute_script(center, script_args=["#back-button"]))
         expect("clicking a toolbar button doesn't send a skater", reacting("#nav-bar", "::after"), False, True)
-        open_space = m.execute_script(
-            "return [...document.querySelectorAll('#nav-bar-customization-target > toolbarspring')].pop();")
-        click(*m.execute_script(center, script_args=[open_space]))
+        # Snoopy's spot: a flexible space, or the start of the URL bar's container.
+        open_space = m.execute_script("""
+          const spring = document.querySelector('#stop-reload-button + toolbarspring');
+          const r = (spring || document.getElementById('urlbar-container')).getBoundingClientRect();
+          return [spring ? r.left + r.width / 2 : r.left + 30, r.top + r.height / 2];
+        """)
+        click(*open_space)
         expect("clicking open toolbar space sends a skater", reacting("#nav-bar", "::after"), True, True)
         time.sleep(3)
         if dark:
