@@ -1,11 +1,14 @@
 #!/bin/sh
-# Install the Snoopy Vertical userChrome extras into your default Firefox profile.
+# Install Snoopy Vertical into your default Firefox profile: the userChrome extras,
+# then the theme (Firefox asks you to click Add; it won't enable add-ons silently).
 #
 #   curl -fsSL https://raw.githubusercontent.com/danielliew/snoopy-firefox-theme/main/install.sh | sh
 #
 # Options (environment variables):
 #   SNOOPY_PROFILE=/path/to/profile   install into this profile instead of the default
+#                                     (prints the theme link instead of opening it)
 #   SNOOPY_VERSION=v1.8.0             install a specific release instead of the latest
+#   SNOOPY_SKIP_THEME=1               only install the userChrome extras
 #   FIREFOX_DIR=/path                 folder containing profiles.ini (auto-detected)
 set -eu
 
@@ -81,10 +84,45 @@ if ! grep -qsF "$pref" "$profile/user.js"; then
   echo "Enabled custom stylesheets in user.js"
 fi
 
-cat <<EOF
+firefox_running() {
+  pgrep -x firefox >/dev/null 2>&1 || pgrep -x firefox-bin >/dev/null 2>&1
+}
 
-Done. Restart Firefox (quit fully, then reopen) to load the extras.
-Theme: open this link in Firefox and click Add (it updates itself after that):
-  $THEME_URL
-Settings: see https://github.com/$REPO#settings
-EOF
+# Opens the theme in the default profile's Firefox, launching it if needed.
+open_in_firefox() {
+  if [ "$(uname)" = Darwin ]; then
+    open -a Firefox "$1" 2>/dev/null
+  elif command -v firefox >/dev/null; then
+    nohup firefox "$1" >/dev/null 2>&1 &
+  elif command -v flatpak >/dev/null && flatpak info org.mozilla.firefox >/dev/null 2>&1; then
+    nohup flatpak run org.mozilla.firefox "$1" >/dev/null 2>&1 &
+  else
+    return 1
+  fi
+}
+
+was_running=no
+firefox_running && was_running=yes
+launched=no
+
+echo
+if grep -qs '"id":"snoopy-vertical@danielliew"' "$profile/extensions.json"; then
+  echo "Theme: already installed (it updates itself; switch to it in about:addons if another theme is on)."
+elif [ -n "${SNOOPY_SKIP_THEME:-}" ]; then
+  echo "Theme: skipped. Install it later from $THEME_URL"
+elif [ -z "${SNOOPY_PROFILE:-}" ] && open_in_firefox "$THEME_URL"; then
+  launched=yes
+  echo "Theme: opened in Firefox. Click Continue to Installation if asked, then Add."
+else
+  echo "Theme: open this link in Firefox and click Add (it updates itself after that):"
+  echo "  $THEME_URL"
+fi
+
+if [ "$was_running" = yes ]; then
+  echo "Restart Firefox (quit fully, then reopen) to load the userChrome extras."
+elif [ "$launched" = yes ]; then
+  echo "Firefox started with the userChrome extras already loaded."
+else
+  echo "Start Firefox to load the userChrome extras."
+fi
+echo "Settings: see https://github.com/$REPO#settings"

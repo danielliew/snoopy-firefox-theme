@@ -35,15 +35,17 @@ Peanuts characters and artwork © Peanuts Worldwide LLC. This is a non-commercia
 
 ## Install
 
-**Theme:** open the [Try it link](https://github.com/danielliew/snoopy-firefox-theme/releases/latest/download/snoopy-vertical.xpi) in Firefox and click **Add**. If Firefox downloads the file instead, drag `snoopy-vertical.xpi` onto a Firefox window.
-
-**userChrome extras** (macOS or Linux), in Terminal:
+**Everything** (macOS or Linux), in Terminal:
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/danielliew/snoopy-firefox-theme/main/install.sh | sh
 ```
 
-Then restart Firefox (Cmd+Q, then reopen). The script finds your default profile, moves any existing `chrome` folder to a dated backup, installs the latest `userChrome.zip`, and turns on `toolkit.legacyUserProfileCustomizations.stylesheets`. Run it again to update. Set `SNOOPY_PROFILE=/path/to/profile` to pick a different profile.
+The script finds your default profile, moves any existing `chrome` folder to a dated backup, installs the latest `userChrome.zip`, and turns on `toolkit.legacyUserProfileCustomizations.stylesheets`. Then it opens the theme in Firefox: click **Continue to Installation** if asked, then **Add** (Firefox never lets a script turn on an add-on by itself). If Firefox was already open, restart it (Cmd+Q, then reopen) to load the extras.
+
+Run it again to update the extras; the theme updates itself. Options: `SNOOPY_PROFILE=/path/to/profile` for a different profile (prints the theme link instead of opening it), `SNOOPY_SKIP_THEME=1` for the extras only.
+
+**Theme only:** open the [Try it link](https://github.com/danielliew/snoopy-firefox-theme/releases/latest/download/snoopy-vertical.xpi) in Firefox and click **Add**. If Firefox downloads the file instead, drag `snoopy-vertical.xpi` onto a Firefox window.
 
 <details>
 <summary>Manual install (or Windows)</summary>
@@ -147,7 +149,7 @@ CI runs on Linux and reads computed styles, so it can't see how things actually 
 
 Find the profile folder in `about:support` → **Profile Folder**, then:
 
-- **Installer**: `SNOOPY_PROFILE="<profile>" sh install.sh` (or `SNOOPY_PROFILE="<profile>" curl -fsSL …/install.sh | sh` for the published copy). Check that it backed up an existing `chrome` folder and added the stylesheets pref to `user.js`, then restart Firefox.
+- **Installer**: `SNOOPY_PROFILE="<profile>" sh install.sh` (or `SNOOPY_PROFILE="<profile>" curl -fsSL …/install.sh | sh` for the published copy). Check that it backed up an existing `chrome` folder, added the stylesheets pref to `user.js`, and printed the theme link, then restart Firefox. To check that the theme opens in Firefox, run it once without `SNOOPY_PROFILE` on a machine whose default profile doesn't have the theme yet.
 - **Signed theme**: install `snoopy-vertical.xpi` from the release's download link. It should install without an "unverified" warning. After a theme release, an older installed copy should update from **about:addons** → gear → **Check for Updates**.
 - **Look**, with System Settings → Appearance → **Show scroll bars: Always**, so the scrollbar takes space as it does with a mouse:
   - Expanded and collapsed sidebar with enough tabs to scroll: the selected tab's border and shadow aren't clipped.
