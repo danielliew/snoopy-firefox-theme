@@ -132,7 +132,8 @@
    Create these as Boolean prefs in about:config; changes apply instantly.
      snoopy.animations.slow      half-speed animations
      snoopy.animations.paused    still sprites (also on with macOS Reduce motion)
-     snoopy.easter-eggs.off      no sleeping, dozing, Joe Cool, dancing, or skating
+     snoopy.easter-eggs.off      no sleeping, dozing, Joe Cool, dancing, skating,
+                                 Flying Ace, chirping Woodstock, or crowded sidebar
      snoopy.sidebar.hide-scene   no doghouse or reading Snoopy in the tab sidebar
      snoopy.color.all            every animation in color
      snoopy.color.<name>         one animation in color: typing, sleeping, dance,
@@ -160,9 +161,24 @@
 :root {
   --snoopy-left: var(--snoopy-typing);
   --snoopy-left-size: 59px 35px;
+  --woodstock-right: var(--woodstock-cart);
+  --woodstock-right-width: 34px;
 }
 
 @media not -moz-pref("snoopy.easter-eggs.off") {
+  /* Easter egg: the World War I Flying Ace patrols private windows. The other
+     easter eggs below still take over. */
+  :root[privatebrowsingmode="temporary"] {
+    --snoopy-left: var(--flying-ace);
+    --snoopy-left-size: 47px 35px;
+  }
+
+  /* Easter egg: Woodstock chirps while a download is running. */
+  :root:has(#downloads-button[progress]) {
+    --woodstock-right: var(--woodstock-chirp);
+    --woodstock-right-width: 28px;
+  }
+
   /* Easter egg: Snoopy naps on his doghouse while the window is in the background. */
   :root:-moz-window-inactive {
     --snoopy-left: var(--snoopy-sleeping);
@@ -213,8 +229,9 @@
     min-width: 72px !important;
     /* Centered between the URL bar and the next button. Charlie Brown takes
        Woodstock's place while a click reaction plays. */
-    background-image: var(--charlie-dance), var(--woodstock-cart);
-    background-size: auto calc(var(--snoopy-react) * 35px), calc((1 - var(--snoopy-react)) * 34px) calc((1 - var(--snoopy-react)) * 26px);
+    background-image: var(--charlie-dance), var(--woodstock-right);
+    background-size: auto calc(var(--snoopy-react) * 35px),
+      calc((1 - var(--snoopy-react)) * var(--woodstock-right-width)) calc((1 - var(--snoopy-react)) * 26px);
     background-repeat: no-repeat !important;
     background-position: center;
     transition: --snoopy-react 0s var(--react-duration);
@@ -270,6 +287,12 @@ sidebar-main[sidebar-ongoing-animations] > #vertical-tabs::after {
     sidebar-main[expanded] > #vertical-tabs:-moz-window-inactive {
       --sidebar-scene: var(--snoopy-dozing);
       --sidebar-scene-size: 61px 83px;
+    }
+
+    /* Easter egg: it's getting crowded in here once 50 tabs are open. */
+    sidebar-main[expanded] > #vertical-tabs:not(:-moz-window-inactive):has(.tabbrowser-tab:nth-child(50 of .tabbrowser-tab)) {
+      --sidebar-scene: var(--crowded);
+      --sidebar-scene-size: auto 83px;
     }
   }
 }

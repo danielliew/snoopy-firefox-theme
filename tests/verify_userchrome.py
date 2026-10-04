@@ -39,7 +39,7 @@ SPRING_LAYOUT = {
         "nav-bar": [
             "sidebar-button", "back-button", "forward-button", "stop-reload-button",
             "customizableui-special-spring1", "vertical-spacer", "urlbar-container",
-            "customizableui-special-spring2", "unified-extensions-button",
+            "customizableui-special-spring2", "downloads-button", "unified-extensions-button",
         ],
         "vertical-tabs": ["tabbrowser-tabs"],
     },
@@ -91,7 +91,9 @@ def run(label, extra_prefs, failures, dark=False):
     (profile / "user.js").write_text(
         "".join(f"user_pref({json.dumps(k)}, {json.dumps(v)});\n" for k, v in prefs.items())
     )
-    (profile / "chrome").symlink_to(ROOT / "userChrome")
+    # A real copy: the macOS content sandbox won't follow a link out of the profile,
+    # so userContent.css wouldn't reach web pages.
+    shutil.copytree(ROOT / "userChrome", profile / "chrome")
     proc = subprocess.Popen(
         [FIREFOX, "--headless", "--marionette", "--remote-allow-system-access", "--no-remote",
          "--profile", str(profile)],
@@ -128,6 +130,22 @@ def run(label, extra_prefs, failures, dark=False):
         expect(f"URL bar sprites have room to paint ({s['leftHeight']}px, {s['rightHeight']}px)",
                s["leftHeight"] >= 26 and s["rightHeight"] >= 26, True, True)
         expect("Sidebar scene", sprite(s["sidebar"]), "doghouse-scene.png", True)
+
+        root_attr = "arguments[1] === null ? document.documentElement.removeAttribute(arguments[0]) : document.documentElement.setAttribute(arguments[0], arguments[1]);"
+        m.execute_script(root_attr, script_args=["privatebrowsingmode", "temporary"])
+        if not s["inactive"]:
+            expect("Flying Ace patrols private windows", sprite(styles()["left"]), "flying-ace.png", True)
+        m.execute_script(root_attr, script_args=["privatebrowsingmode", None])
+        has_downloads = m.execute_script("const b = document.getElementById('downloads-button'); if (b) b.setAttribute('progress', 'true'); return !!b;")
+        if has_downloads:
+            expect("Woodstock chirps while downloading", sprite(styles()["right"]), "woodstock-chirp.png", True)
+            m.execute_script("document.getElementById('downloads-button').removeAttribute('progress');")
+        if not s["inactive"]:
+            crowd = m.execute_script("const n = gBrowser.tabs.length; for (let i = n; i < 50; i++) gBrowser.addTrustedTab('about:blank'); return n;")
+            time.sleep(0.5)
+            expect("It's getting crowded at 50 tabs", sprite(styles()["sidebar"]), "crowded.png", True)
+            m.execute_script("gBrowser.tabs.slice(arguments[0]).forEach(t => gBrowser.removeTab(t));", script_args=[crowd])
+            time.sleep(0.5)
 
         def click(x, y, hover_ms=300):
             m.actions.sequence("pointer", "mouse", {"pointerType": "mouse"}).pointer_move(
@@ -374,6 +392,19 @@ def run(label, extra_prefs, failures, dark=False):
         m.set_context(m.CONTEXT_CHROME)
         time.sleep(0.5)
         expect("LOCAL tag on file:// page", styles()["local"], '"LOCAL"', True)
+
+        m.set_context(m.CONTEXT_CONTENT)
+        try:
+            m.navigate("http://snoopy-does-not-exist.invalid/")
+        except Exception:
+            pass
+        time.sleep(1)
+        error_page = m.execute_script("""
+          const card = document.querySelector('body > net-error-card');
+          return card ? getComputedStyle(card, '::before').backgroundImage : 'no error card';
+        """)
+        m.set_context(m.CONTEXT_CHROME)
+        expect("Charlie Brown on the error page", sprite(error_page.split(",")[0]), "charlie-line-drive.png", True)
 
         m.execute_script("gBrowser.getFindBar().then(f => f.open());")
         time.sleep(0.5)

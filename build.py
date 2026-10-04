@@ -51,6 +51,10 @@ ASSET_HEIGHTS = {
     "christmas-dancer": 28,
     "snoopy-guitar": 35,
     "joe-cool-badge": 83,
+    "flying-ace": 35,
+    "woodstock-chirp": 26,
+    "charlie-line-drive": 100,
+    "crowded": 83,
 }
 
 # README showcase renders, in px.
@@ -60,11 +64,13 @@ SHOWCASE_HEIGHTS = {"woodstock-cart": 90, "doghouse-scene": 160, "snoopy-dozing"
 PAPER = (251, 245, 230, 255)
 
 # Assets shown in their original colors by default instead of black-and-white line art.
-DEFAULT_COLOR = {"woodstock-cart", "charlie-dance", "christmas-dancer", "snoopy-guitar", "joe-cool-badge"}
+DEFAULT_COLOR = {"woodstock-cart", "charlie-dance", "christmas-dancer", "snoopy-guitar", "joe-cool-badge",
+                 "flying-ace", "woodstock-chirp", "charlie-line-drive", "crowded"}
 # Assets with only their default style: Joe Cool's source art is already black and
-# white apart from the badge's red lettering, and line art turns the guitar solo's
-# gray shading into speckles.
-SINGLE_STYLE = {"joe-cool", "joe-cool-badge", "snoopy-guitar"}
+# white apart from the badge's red lettering, line art turns the guitar solo's and
+# Flying Ace's cut-out edges into speckles, and the rest are single-purpose extras.
+SINGLE_STYLE = {"joe-cool", "joe-cool-badge", "snoopy-guitar", "flying-ace", "woodstock-chirp",
+                "charlie-line-drive", "crowded"}
 
 # about:config switch for each asset's other style: snoopy.color.<name> turns line art
 # into color, snoopy.ink.<name> turns a color default into line art. snoopy.color.all
@@ -94,10 +100,14 @@ ASSET_MIN_FRAME_MS = {
     "skate-cruise": 80,
     "snoopy-guitar": 160,
     "joe-cool-badge": 130,
+    "flying-ace": 160,
+    "woodstock-chirp": 120,
+    "crowded": 260,
+    "charlie-line-drive": 120,
 }
-STABILIZE = {"snoopy-dozing", "snoopy-guitar"}
+STABILIZE = {"snoopy-dozing", "snoopy-guitar", "flying-ace"}
 # Palette size for color assets with few inks (default 64).
-ASSET_COLORS = {"joe-cool-badge": 32}
+ASSET_COLORS = {"joe-cool-badge": 32, "crowded": 24}
 # Joe Cool cropped out of his Listening Lounge badge, above the animated lettering.
 JOE_BOX = (130, 40, 350, 282)
 # He only wobbles (hand-drawn line boil), so a few slow frames carry it.
@@ -117,7 +127,7 @@ SPEEDS = ("normal", "slow", "still")
 
 # Size budgets checked by `uv run build.py check` (KB).
 BUDGET_ASSET_KB = 120
-BUDGET_ASSETS_TOTAL_KB = 1750
+BUDGET_ASSETS_TOTAL_KB = 2400
 BUDGET_XPI_KB = 100
 
 
@@ -327,6 +337,61 @@ def joe_badge(frames):
     return out
 
 
+def _label(mask):
+    """Number the mask's connected regions 1..n (up to 254); returns (labels, n + 1)."""
+    labels = mask.copy()
+    w = labels.width
+    count = 1
+    while count < 255 and (i := labels.tobytes().find(b"\xff")) >= 0:
+        ImageDraw.floodfill(labels, (i % w, i // w), count)
+        count += 1
+    return labels, count
+
+
+def _largest(mask):
+    labels, count = _label(mask)
+    hist = labels.histogram()
+    biggest = max(range(1, count), key=hist.__getitem__)
+    return labels.point(lambda v: 255 if v == biggest else 0)
+
+
+def _edge_connected(mask):
+    """The parts of the mask reachable from the image border."""
+    w, h = mask.size
+    mask = mask.copy()
+    for x, y in [(x, 0) for x in range(w)] + [(x, h - 1) for x in range(w)] + [(0, y) for y in range(h)] + [(w - 1, y) for y in range(h)]:
+        if mask.getpixel((x, y)) == 255:
+            ImageDraw.floodfill(mask, (x, y), 128)
+    return mask.point(lambda v: 255 if v == 128 else 0)
+
+
+def flying_ace(frames):
+    """Cut the Flying Ace and his doghouse out of the sky.
+
+    The sky is cool blue; the clouds and smoke are warm gray but darker than Snoopy's
+    white. Sky fills in from the edges (Snoopy's outline stops it), large gray blobs go,
+    and holes left inside Snoopy are filled back in.
+    """
+    out = []
+    for f in frames:
+        f = f.convert("RGBA")
+        r, _, b, _ = f.split()
+        _, s, v = f.convert("RGB").convert("HSV").split()
+        cool = ImageChops.subtract(ImageChops.add(b, Image.new("L", f.size, 8)), r).point(lambda x: 255 if x else 0)
+        unsaturated = s.point(lambda x: 255 if x < 62 else 0)
+        sky = ImageChops.multiply(
+            ImageChops.lighter(cool, ImageChops.multiply(unsaturated, v.point(lambda x: 255 if x < 215 else 0))),
+            v.point(lambda x: 255 if x > 60 else 0),
+        )
+        clouds = (ImageChops.multiply(unsaturated, v.point(lambda x: 255 if 60 < x < 205 else 0))
+                  .filter(ImageFilter.MinFilter(5)).filter(ImageFilter.MaxFilter(7)))
+        alpha = ImageChops.subtract(ImageChops.invert(_edge_connected(sky)), clouds)
+        alpha = _largest(alpha.filter(ImageFilter.MinFilter(3)).filter(ImageFilter.MaxFilter(3)))
+        f.putalpha(ImageChops.invert(_edge_connected(ImageChops.invert(alpha))))
+        out.append(f)
+    return out
+
+
 def snoopy_guitar(frames):
     """Key out the pink stage and keep Snoopy, dropping cast members cut off at the crop edge."""
     out = []
@@ -337,12 +402,8 @@ def snoopy_guitar(frames):
             ImageChops.subtract(r, g).point(lambda v: 255 if 28 <= v <= 110 else 0),
             g.point(lambda v: 255 if v >= 90 else 0),
         )
-        labels = ImageChops.invert(stage).filter(ImageFilter.MinFilter(3)).filter(ImageFilter.MaxFilter(3))
+        labels, count = _label(ImageChops.invert(stage).filter(ImageFilter.MinFilter(3)).filter(ImageFilter.MaxFilter(3)))
         w, h = labels.size
-        count = 1
-        while count < 255 and (i := labels.tobytes().find(b"\xff")) >= 0:
-            ImageDraw.floodfill(labels, (i % w, i // w), count)
-            count += 1
         hist = labels.histogram()
         snoopy = max(range(1, count), key=hist.__getitem__)
         sx0, sy0, sx1, sy1 = labels.point(lambda v: 255 if v == snoopy else 0).getbbox()
@@ -469,7 +530,7 @@ def all_outputs():
         "woodstock-cart": ([f.crop(CART_BOX) for f in source_frames], source_durations),
     }
     for name in ("snoopy-sleeping", "snoopy-dance", "snoopy-reading", "doghouse-scene", "snoopy-dozing",
-                 "charlie-dance", "christmas-dancer"):
+                 "charlie-dance", "christmas-dancer", "woodstock-chirp", "charlie-line-drive", "crowded"):
         sources[name] = load_frames(GIPHY / f"{name}.gif")
     joe_frames, joe_durations = load_frames(GIPHY / "joe-cool.gif")
     sources["joe-cool-badge"] = (joe_badge(joe_frames), joe_durations)
@@ -477,6 +538,8 @@ def all_outputs():
     sources["joe-cool"] = (joe_frames, [JOE_FRAME_MS] * len(joe_frames))
     guitar_frames, guitar_durations = load_frames(GIPHY / "snoopy-guitar.gif")
     sources["snoopy-guitar"] = (snoopy_guitar(guitar_frames), guitar_durations)
+    ace_frames, ace_durations = load_frames(GIPHY / "flying-ace.gif")
+    sources["flying-ace"] = (flying_ace(ace_frames), ace_durations)
     for name in sorted(IN_PLACE):
         frames, durations = load_frames(GIPHY / f"{name}.gif")
         part = FRAME_SLICE.get(name, slice(None))

@@ -1,6 +1,68 @@
-/* Snoopy Vertical: DevTools styling. Firefox loads DevTools as content pages, so
-   userChrome.css doesn't reach them. Everything here is scoped to DevTools URLs and
-   leaves web pages alone. */
+/* Snoopy Vertical: Firefox's own pages (DevTools, new tab, error pages). Firefox loads
+   these as content pages, so userChrome.css doesn't reach them. Everything here is
+   scoped to those URLs and leaves web pages alone. */
+
+/* ---------- New tab and home: paper, and Snoopy's doghouse for the Firefox logo ---------- */
+
+@-moz-document url("about:newtab"), url("about:home") {
+  @media (prefers-color-scheme: light) {
+    :root {
+      --newtab-background-color: #fbf5e6 !important;
+    }
+  }
+
+  .logo-and-wordmark .logo {
+    width: 139px !important;
+    height: 64px !important;
+    background: url("assets/doghouse-scene.png") no-repeat center / contain !important;
+  }
+
+  @media -moz-pref("snoopy.animations.paused"), (prefers-reduced-motion: reduce) {
+    .logo-and-wordmark .logo {
+      background-image: url("assets/still/doghouse-scene.png") !important;
+    }
+  }
+}
+
+/* ---------- Error pages: paper, and Charlie Brown's line drive in place of the fox ----------
+   @-moz-document doesn't match error pages (they keep the failed site's address), so
+   these key off Firefox's error card element. The card is a web component, so its
+   insides can't be styled from here; Charlie Brown covers its illustration instead. */
+
+@media (prefers-color-scheme: light) {
+  :root:has(> body > net-error-card) {
+    --background-color-canvas: #fbf5e6 !important;
+    --text-color: #37352f !important;
+  }
+}
+
+body > net-error-card {
+  position: relative;
+}
+
+body > net-error-card::before {
+  content: "Good grief.";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 233px;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  box-sizing: border-box;
+  padding-block-start: 150px;
+  font: italic 600 15px ui-sans-serif, -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--text-color);
+  background: url("assets/charlie-line-drive.png") no-repeat center top 40px / 202px auto,
+    var(--background-color-canvas);
+}
+
+@media -moz-pref("snoopy.animations.paused"), (prefers-reduced-motion: reduce) {
+  body > net-error-card::before {
+    background-image: url("assets/still/charlie-line-drive.png"), none;
+  }
+}
 
 /* ---------- Paper and ink in light mode; dark mode keeps Firefox's colors ---------- */
 
@@ -40,6 +102,13 @@
     background: url("assets/snoopy-typing.png") no-repeat left center / auto 22px;
     animation: snoopy-cursor 1.1s steps(1) infinite;
     pointer-events: none;
+  }
+
+  /* A thin light outline keeps the black linework readable on the dark tab bar. */
+  @media (prefers-color-scheme: dark) {
+    #toolbox-buttons-end::before {
+      filter: drop-shadow(0 0 0.5px #fff) drop-shadow(0 0 0.5px #fff);
+    }
   }
 
   @keyframes snoopy-cursor {
