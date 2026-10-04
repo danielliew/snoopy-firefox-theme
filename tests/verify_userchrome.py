@@ -439,10 +439,18 @@ def run(label, extra_prefs, failures, dark=False):
         time.sleep(1)
         error_page = m.execute_script("""
           const card = document.querySelector('body > net-error-card');
-          return card ? getComputedStyle(card, '::before').backgroundImage : 'no error card';
+          if (!card) return ['no error card', 'no error card'];
+          const c = card.getBoundingClientRect(), b = getComputedStyle(card, '::before');
+          const right = c.left + parseFloat(b.width), bottom = c.top + parseFloat(b.height);
+          const covered = [...card.shadowRoot.querySelectorAll('h1, h3, p, li, a, moz-button')].filter(el => {
+            const r = el.getBoundingClientRect();
+            return r.width && r.left < right + 8 && r.top < bottom + 4;
+          }).map(el => el.tagName.toLowerCase());
+          return [b.backgroundImage, covered.join(' ') || 'none'];
         """)
         m.set_context(m.CONTEXT_CHROME)
-        expect("Charlie Brown on the error page", sprite(error_page.split(",")[0]), "charlie-line-drive.png", True)
+        expect("Charlie Brown on the error page", sprite(error_page[0].split(",")[0]), "charlie-line-drive.png", True)
+        expect("Charlie Brown leaves the error text clear", error_page[1], "none", True)
 
         m.set_context(m.CONTEXT_CONTENT)
         m.navigate(f"{site}/article.html")

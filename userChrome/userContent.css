@@ -116,25 +116,25 @@ body > net-error-card {
   position: relative;
 }
 
-/* Covers just the illustration's corner: beside the text in wide windows, above it in
-   narrow ones (the text starts 173px down), so it never hides the text or buttons. */
+/* Covers just Firefox's 195px-wide illustration (30px down beside the text in wide
+   windows, at the top above it in narrow ones), leaving a gap before the text. */
 body > net-error-card::before {
   content: "Good grief.";
   position: absolute;
   inset-block-start: 0;
   inset-inline-start: 0;
-  width: 233px;
+  width: 195px;
   height: 168px;
   z-index: 1;
   display: flex;
   align-items: flex-start;
   justify-content: center;
   box-sizing: border-box;
-  padding-block-start: 136px;
+  padding-block-start: 140px;
   font: italic 600 15px ui-sans-serif, -apple-system, BlinkMacSystemFont, sans-serif;
   color: var(--text-color);
   pointer-events: none;
-  background: url("assets/charlie-line-drive.png") no-repeat center top 28px / 190px auto,
+  background: url("assets/charlie-line-drive.png") no-repeat center top 30px / 100% auto,
     var(--background-color-canvas);
 }
 
