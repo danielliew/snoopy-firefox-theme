@@ -34,7 +34,7 @@ Firefox theme based on [Snoopy (animated)](https://addons.mozilla.org/firefox/ad
     <td align="center"><img src="docs/showcase/flying-ace.png" height="120" alt="Snoopy as the World War I Flying Ace on his doghouse"><br><sub>Flying Ace, in private windows</sub></td>
     <td align="center"><img src="docs/showcase/woodstock-chirp.png" height="90" alt="Woodstock chirping"><br><sub>Woodstock chirping, while downloading</sub></td>
     <td align="center"><img src="docs/showcase/crowded.png" height="120" alt="It's getting crowded in here, with lots of Snoopys"><br><sub>It's getting crowded, on focus at 50+ tabs</sub></td>
-    <td align="center"><img src="docs/showcase/charlie-line-drive.png" height="120" alt="Charlie Brown knocked over by a line drive"><br><sub>Good grief, on error pages</sub></td>
+    <td align="center"><img src="docs/showcase/charlie-line-drive.png" height="120" alt="Charlie Brown knocked over by a line drive"><br><sub>Charlie Brown, on error pages</sub></td>
   </tr>
   <tr>
     <td align="center"><img src="docs/showcase/schroeder-piano.png" height="120" alt="Schroeder playing his toy piano"><br><sub>Schroeder, beside tabs playing sound</sub></td>
@@ -116,7 +116,7 @@ Need the userChrome extras.
 Also need the userChrome extras. These live in `userContent.css`, since Firefox shows its own pages as content that `userChrome.css` doesn't reach.
 
 - **New tab and home**: paper background in light mode, and Snoopy's doghouse, in full color, in place of the Firefox logo, captioned "a Snoopy Firefox".
-- **Error pages** ("Server Not Found", offline, and the like): paper background in light mode, and Charlie Brown getting knocked over by a line drive in place of the fox. Good grief.
+- **Error pages** ("Server Not Found", offline, and the like): paper background in light mode, and Charlie Brown getting knocked over by a line drive in place of the fox, captioned "It was a dark and stormy night…"
 - **Reader View**: paper and ink in the light color scheme, with Snoopy reading above the title (also on sepia and gray). Dark and custom schemes keep Firefox's colors.
 - **PDF viewer**: paper toolbar and sidebar around the white pages in light mode.
 - **Menus**: Firefox's own menus (main menu, extensions, downloads) become white Notion popovers with an ink edge. macOS draws right-click and dropdown menus itself, so those stay native.
