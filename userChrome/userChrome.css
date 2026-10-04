@@ -25,6 +25,16 @@
   initial-value: 0;
 }
 
+@property --snoopy-crowd {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
+
+@keyframes snoopy-crowd {
+  from, to { --snoopy-crowd: 1; }
+}
+
 :root {
   --peanuts-ink: #37352f;
   --peanuts-paper: #fbf5e6;
@@ -332,10 +342,14 @@ sidebar-main[sidebar-ongoing-animations] > #vertical-tabs::after {
       --sidebar-scene-size: 61px 83px;
     }
 
-    /* Easter egg: it's getting crowded in here once 50 tabs are open. */
-    sidebar-main[expanded] > #vertical-tabs:not(:-moz-window-inactive):has(.tabbrowser-tab:nth-child(50 of .tabbrowser-tab)) {
-      --sidebar-scene: var(--crowded);
-      --sidebar-scene-size: auto 83px;
+    /* Easter egg: once 50 tabs are open, it's getting crowded in here for 5 seconds
+       each time the window comes to the front, then back to the doghouse. Background
+       windows drop the animation, so focusing the window starts it over. */
+    sidebar-main[expanded] > #vertical-tabs:not(:-moz-window-inactive):has(.tabbrowser-tab:nth-child(50 of .tabbrowser-tab))::after {
+      background-image: var(--crowded), var(--doghouse-scene);
+      background-size: auto calc(var(--snoopy-crowd) * 83px),
+        calc((1 - var(--snoopy-crowd)) * min(180px, 100% - 16px)) auto;
+      animation: snoopy-crowd 5s;
     }
   }
 }

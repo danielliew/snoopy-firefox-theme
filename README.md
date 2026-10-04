@@ -33,7 +33,7 @@ Firefox theme based on [Snoopy (animated)](https://addons.mozilla.org/firefox/ad
   <tr>
     <td align="center"><img src="docs/showcase/flying-ace.png" height="120" alt="Snoopy as the World War I Flying Ace on his doghouse"><br><sub>Flying Ace, in private windows</sub></td>
     <td align="center"><img src="docs/showcase/woodstock-chirp.png" height="90" alt="Woodstock chirping"><br><sub>Woodstock chirping, while downloading</sub></td>
-    <td align="center"><img src="docs/showcase/crowded.png" height="120" alt="It's getting crowded in here, with lots of Snoopys"><br><sub>It's getting crowded, at 50 tabs</sub></td>
+    <td align="center"><img src="docs/showcase/crowded.png" height="120" alt="It's getting crowded in here, with lots of Snoopys"><br><sub>It's getting crowded, on focus at 50+ tabs</sub></td>
     <td align="center"><img src="docs/showcase/charlie-line-drive.png" height="120" alt="Charlie Brown knocked over by a line drive"><br><sub>Good grief, on error pages</sub></td>
   </tr>
   <tr>
@@ -107,7 +107,7 @@ Need the userChrome extras.
 - Snoopy reads a book at the bottom of the collapsed sidebar.
 - Snoopy becomes the World War I Flying Ace, goggles and scarf on, in private windows.
 - Woodstock chirps instead of pushing his cart while a download is running (needs the Downloads button in the toolbar, which Firefox shows during downloads).
-- At 50 open tabs, the doghouse gives way to "it's getting crowded in here."
+- With 50 or more tabs open, "it's getting crowded in here" takes over the doghouse for 5 seconds each time the window comes to the front.
 - Schroeder plays his toy piano at the end of each expanded tab that's playing sound (he steps aside on hover for the close button, and leaves when the tab is muted).
 - Lucy's psychiatric booth stands at the end of the Cmd+F find bar. The Doctor Is In.
 

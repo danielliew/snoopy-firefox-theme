@@ -165,7 +165,14 @@ def run(label, extra_prefs, failures, dark=False):
         if not s["inactive"]:
             crowd = m.execute_script("const n = gBrowser.tabs.length; for (let i = n; i < 50; i++) gBrowser.addTrustedTab('about:blank'); return n;")
             time.sleep(0.5)
-            expect("It's getting crowded at 50 tabs", sprite(styles()["sidebar"]), "crowded.png", True)
+            crowd_size = "return getComputedStyle(document.getElementById('vertical-tabs'), '::after').backgroundSize.split(',')[0].trim();"
+            expect("It's getting crowded at 50 tabs", sprite(styles()["sidebar"].split(",")[0]), "crowded.png", True)
+            expect("crowded scene is showing", m.execute_script(crowd_size), "auto 83px", True)
+            m.execute_script("""
+              document.getElementById('vertical-tabs').getAnimations({subtree: true})
+                .filter(a => a.animationName === 'snoopy-crowd').forEach(a => a.finish());
+            """)
+            expect("crowded scene gives way to the doghouse after 5 seconds", m.execute_script(crowd_size), "auto 0px", True)
             m.execute_script("gBrowser.tabs.slice(arguments[0]).forEach(t => gBrowser.removeTab(t));", script_args=[crowd])
             time.sleep(0.5)
 
