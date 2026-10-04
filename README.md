@@ -54,6 +54,11 @@ Themes can't have settings, so the userChrome extras read their own `about:confi
 | `snoopy.animations.paused` | Every sprite holds still, and no skating. |
 | `snoopy.easter-eggs.off` | Snoopy keeps typing: no sleeping, dozing, Joe Cool, dancing, or skating. |
 | `snoopy.sidebar.hide-scene` | No doghouse or reading Snoopy in the tab sidebar. |
+| `snoopy.color.all` | Every animation in full color instead of black-and-white line art. |
+| `snoopy.color.typing`, `.sleeping`, `.dance`, `.reading`, `.doghouse`, `.dozing`, `.skate` | Just that animation in color (for example `snoopy.color.doghouse`). |
+| `snoopy.ink.cart` | Woodstock's cart in line art (it's in color by default). |
+
+Joe Cool has no color version because his original art is already black and white. Speed and color settings combine, so a colored doghouse can also be slow or paused.
 
 Animations also pause on their own when **Reduce motion** is on (macOS System Settings → Accessibility → Display).
 
@@ -89,7 +94,7 @@ python3 -m venv .venv
 .venv/bin/python build.py
 ```
 
-This writes `theme/images/header.png`, the 2x (Retina) animations in `userChrome/assets/` (converted to Notion-style black-and-white line art, with half-speed copies in `slow/` and still frames in `still/`), the README previews in `docs/showcase/`, and `dist/snoopy-vertical.xpi`. Source art lives in `source/`; sizes and frame-rate caps are constants at the top of `build.py`.
+This writes `theme/images/header.png`, the 2x (Retina) animations in `userChrome/assets/` (converted to Notion-style black-and-white line art, with half-speed copies in `slow/` and still frames in `still/`; color versions in `color/`, and a line-art cart in `ink/`), `userChrome/sprites.css` (the CSS that picks a file for each speed and color setting), the README previews in `docs/showcase/`, and `dist/snoopy-vertical.xpi`. Source art lives in `source/`; sizes and frame-rate caps are constants at the top of `build.py`.
 
 Install [oxipng](https://github.com/shssoichiro/oxipng) (`brew install oxipng`) before building; it shrinks the images about 20% further, and the build skips it if it's missing.
 

@@ -54,8 +54,27 @@ SHOWCASE_HEIGHT = 120
 SHOWCASE_HEIGHTS = {"woodstock-cart": 90, "doghouse-scene": 160, "snoopy-dozing": 160}
 PAPER = (251, 245, 230, 255)
 
-# Assets kept in their original colors instead of black-and-white line art.
-KEEP_COLOR = {"woodstock-cart"}
+# Assets shown in their original colors by default instead of black-and-white line art.
+DEFAULT_COLOR = {"woodstock-cart"}
+# Joe Cool's source art is already black and white, so he has no color version.
+NO_COLOR_VERSION = {"joe-cool"}
+
+# about:config switch for each asset's other style: snoopy.color.<name> turns line art
+# into color, snoopy.ink.<name> turns a color default into line art. snoopy.color.all
+# turns every asset to color.
+STYLE_PREFS = {
+    "snoopy-typing": "typing",
+    "woodstock-cart": "cart",
+    "snoopy-sleeping": "sleeping",
+    "snoopy-dance": "dance",
+    "snoopy-reading": "reading",
+    "doghouse-scene": "doghouse",
+    "snoopy-dozing": "dozing",
+    "skate-ollie": "skate",
+    "skate-jump": "skate",
+    "skate-cruise": "skate",
+}
+SPRITES_CSS = ROOT / "userChrome" / "sprites.css"
 
 # Always-visible animations get a lower frame rate.
 ASSET_MIN_FRAME_MS = {
@@ -77,13 +96,13 @@ FRAME_SLICE = {"skate-ollie": slice(60, None), "skate-cruise": slice(60, None)}
 # Already black-and-white line art; ink() would turn its gray shading into speckles.
 LINE_ART = {"joe-cool"}
 
-# Variants selected by the snoopy.animations.* prefs in userChrome.css.
+# Speed variants selected by the snoopy.animations.* prefs, under each style's folder.
 SLOW_FACTOR = 2
-VARIANT_DIRS = {"normal": ASSETS, "slow": ASSETS / "slow", "still": ASSETS / "still"}
+SPEEDS = ("normal", "slow", "still")
 
 # Size budgets checked by `build.py --check` (KB).
 BUDGET_ASSET_KB = 120
-BUDGET_ASSETS_TOTAL_KB = 900
+BUDGET_ASSETS_TOTAL_KB = 1500
 BUDGET_XPI_KB = 100
 
 
@@ -185,6 +204,21 @@ def merge_still_frames(frames, durations, threshold=16, min_ms=0):
     return kept, kept_durations
 
 
+def flatten_colors(frames, colors=64):
+    """One shared undithered palette and on/off alpha, so color frames compress like flat cartoons."""
+    sample = Image.new("RGB", (frames[0].width, frames[0].height * min(len(frames), 8)))
+    step = max(1, len(frames) // 8)
+    for i, f in enumerate(frames[::step][:8]):
+        sample.paste(_flatten(f, f.getchannel("A")), (0, i * f.height))
+    palette = sample.quantize(colors, method=Image.Quantize.MEDIANCUT)
+    out = []
+    for f in frames:
+        rgb = _flatten(f, f.getchannel("A")).quantize(palette=palette, dither=Image.Dither.NONE).convert("RGB")
+        alpha = f.getchannel("A").point(lambda v: 255 if v >= 128 else 0)
+        out.append(Image.merge("RGBA", (*rgb.split(), alpha)))
+    return out
+
+
 def stabilize(frames, threshold=40, radius=4, density=24):
     """Drop scattered single-pixel flicker so each delta frame only covers real motion."""
     out = [frames[0]]
@@ -229,15 +263,18 @@ def encode_png(frames, durations, grayscale=False):
     return data
 
 
-def render_asset(name, frames, durations, height):
+def render_asset(name, frames, durations, height, color=None):
+    color = name in DEFAULT_COLOR if color is None else color
     frames = [clear_white_background(f) for f in frames]
     if name in IN_PLACE:
         frames = in_place(frames)
     box = union_bbox(frames)
     frames = fit_height([f.crop(box) for f in frames], height)
-    if name in LINE_ART:
+    if color:
+        frames = flatten_colors(frames)
+    elif name in LINE_ART:
         frames = [Image.merge("RGBA", (*[f.convert("L")] * 3, f.getchannel("A"))) for f in frames]
-    elif name not in KEEP_COLOR:
+    else:
         frames = ink(frames)
     if name in STABILIZE:
         frames = stabilize(frames)
@@ -270,15 +307,61 @@ def in_place(frames):
     return out
 
 
+def styles(name):
+    """[(color, folder)] for an asset: its default style first, then the alternate if any."""
+    default = name in DEFAULT_COLOR
+    out = [(default, ASSETS)]
+    if name not in NO_COLOR_VERSION:
+        out.append((not default, ASSETS / ("ink" if default else "color")))
+    return out
+
+
+def asset_path(folder, speed, name):
+    return (folder if speed == "normal" else folder / speed) / f"{name}.png"
+
+
 def asset_outputs(name, frames, durations):
     """Every file written for one userChrome asset, as {path: (frames, durations, grayscale)}."""
-    frames, durations = render_asset(name, frames, durations, ASSET_HEIGHTS[name] * SCALE)
-    gray = name not in KEEP_COLOR
-    return {
-        VARIANT_DIRS["normal"] / f"{name}.png": (frames, durations, gray),
-        VARIANT_DIRS["slow"] / f"{name}.png": (frames, [d * SLOW_FACTOR for d in durations], gray),
-        VARIANT_DIRS["still"] / f"{name}.png": (frames[:1], durations[:1], gray),
-    }
+    out = {}
+    for color, folder in styles(name):
+        f, d = render_asset(name, frames, durations, ASSET_HEIGHTS[name] * SCALE, color)
+        variants = {"normal": (f, d), "slow": (f, [x * SLOW_FACTOR for x in d]), "still": (f[:1], d[:1])}
+        for speed, (vf, vd) in variants.items():
+            out[asset_path(folder, speed, name)] = (vf, vd, not color)
+    return out
+
+
+def sprites_css():
+    """CSS variables choosing each sprite's file from the style and speed prefs."""
+    slow = '-moz-pref("snoopy.animations.slow")'
+    still = '-moz-pref("snoopy.animations.paused"), (prefers-reduced-motion: reduce)'
+
+    def url(folder, speed, name):
+        return f'url("{asset_path(folder, speed, name).relative_to(SPRITES_CSS.parent).as_posix()}")'
+
+    def blocks(entries, indent=""):
+        lines = []
+        for speed, query in (("normal", None), ("slow", slow), ("still", still)):
+            decls = [f"{indent}{'  ' if query else ''}  --{n}: {url(folder, speed, n)};" for n, folder in entries]
+            body = [f"{indent}{'  ' if query else ''}:root {{", *decls, f"{indent}{'  ' if query else ''}}}"]
+            lines += [f"{indent}@media {query} {{", *body, f"{indent}}}"] if query else body
+        return lines
+
+    out = [
+        "/* Generated by build.py from the asset list; edit build.py, not this file. */",
+        "",
+        *blocks([(n, ASSETS) for n in ASSET_HEIGHTS]),
+    ]
+    for name in ASSET_HEIGHTS:
+        if name in NO_COLOR_VERSION:
+            continue
+        default_color = name in DEFAULT_COLOR
+        alt = styles(name)[1][1]
+        query = f'-moz-pref("snoopy.ink.{STYLE_PREFS[name]}")' if default_color else (
+            f'-moz-pref("snoopy.color.{STYLE_PREFS[name]}"), -moz-pref("snoopy.color.all")'
+        )
+        out += ["", f"@media {query} {{", *blocks([(name, alt)], "  "), "}"]
+    return "\n".join(out) + "\n"
 
 
 def showcase_output(name, frames, durations):
@@ -302,7 +385,7 @@ def header_output(source_frames, durations):
     }
     sprites["left"] = ink(fit_height(sprites["left"], 38))
     sprites["right"] = fit_height(sprites["right"], 30)
-    if "woodstock-cart" not in KEEP_COLOR:
+    if "woodstock-cart" not in DEFAULT_COLOR:
         sprites["right"] = ink(sprites["right"])
     half = max(LEFT_GAP + sprites["left"][0].width, RIGHT_GAP + sprites["right"][0].width)
 
@@ -366,6 +449,9 @@ def check(outputs):
         if not frames_match(path, expected, durations if len(frames) > 1 else durations[:0]):
             problems.append(f"stale: {path.relative_to(ROOT)} (run build.py and commit)")
 
+    if not SPRITES_CSS.exists() or SPRITES_CSS.read_text() != sprites_css():
+        problems.append(f"stale: {SPRITES_CSS.relative_to(ROOT)} (run build.py and commit)")
+
     assets = [p for p in ASSETS.rglob("*.png")]
     for p in assets:
         if p.stat().st_size > BUDGET_ASSET_KB * 1024:
@@ -395,9 +481,10 @@ def main():
     for path, (frames, durations, gray) in outputs.items():
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(encode_png(frames, durations, gray))
+    SPRITES_CSS.write_text(sprites_css())
     for name in ASSET_HEIGHTS:
-        p = ASSETS / f"{name}.png"
-        print(f"  {p.relative_to(ROOT)}: {p.stat().st_size // 1024} KB")
+        sizes = [f"{asset_path(folder, 'normal', name).stat().st_size // 1024} KB" for _, folder in styles(name)]
+        print(f"  {name}: {' / '.join(sizes)}")
     xpi = package(THEME_DIR, DIST)
     total = sum(p.stat().st_size for p in ASSETS.rglob("*.png"))
     print(f"wrote {len(outputs)} images (userChrome assets {total // 1024} KB); packaged {xpi.relative_to(ROOT)} ({xpi.stat().st_size // 1024} KB)")
