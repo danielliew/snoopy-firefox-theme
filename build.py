@@ -39,21 +39,23 @@ ASSET_HEIGHTS = {
     "woodstock-cart": 26,
     "snoopy-sleeping": 35,
     "snoopy-dance": 35,
-    "woodstock-flying": 22,
+    "snoopy-reading": 24,
     "doghouse-scene": 83,
+    "snoopy-dozing": 83,
 }
 
 # README showcase renders, in px.
 SHOWCASE = ROOT / "docs" / "showcase"
 SHOWCASE_HEIGHT = 120
-SHOWCASE_HEIGHTS = {"woodstock-cart": 90, "woodstock-flying": 90, "doghouse-scene": 160}
+SHOWCASE_HEIGHTS = {"woodstock-cart": 90, "doghouse-scene": 160, "snoopy-dozing": 160}
 PAPER = (251, 245, 230, 255)
 
 # Assets kept in their original colors instead of black-and-white line art.
 KEEP_COLOR = {"woodstock-cart"}
 
 # Always-visible animations get a lower frame rate.
-ASSET_MIN_FRAME_MS = {"doghouse-scene": 80}
+ASSET_MIN_FRAME_MS = {"doghouse-scene": 80, "snoopy-dozing": 160}
+STABILIZE = {"snoopy-dozing"}
 
 # Variants selected by the snoopy.animations.* prefs in userChrome.css.
 SLOW_FACTOR = 2
@@ -61,7 +63,7 @@ VARIANT_DIRS = {"normal": ASSETS, "slow": ASSETS / "slow", "still": ASSETS / "st
 
 # Size budgets checked by `build.py --check` (KB).
 BUDGET_ASSET_KB = 120
-BUDGET_ASSETS_TOTAL_KB = 500
+BUDGET_ASSETS_TOTAL_KB = 600
 BUDGET_XPI_KB = 100
 
 
@@ -163,6 +165,21 @@ def merge_still_frames(frames, durations, threshold=16, min_ms=0):
     return kept, kept_durations
 
 
+def stabilize(frames, threshold=40, radius=4, density=24):
+    """Drop scattered single-pixel flicker so each delta frame only covers real motion."""
+    out = [frames[0]]
+    for frame in frames[1:]:
+        prev = out[-1]
+        changed = ImageChops.difference(prev, frame).convert("L").point(lambda v: 255 if v > threshold else 0)
+        moving = (
+            changed.filter(ImageFilter.BoxBlur(radius))
+            .point(lambda v: 255 if v > density else 0)
+            .filter(ImageFilter.MaxFilter(2 * radius + 1))
+        )
+        out.append(Image.composite(frame, prev, moving))
+    return out
+
+
 def encode_png(frames, durations, grayscale=False):
     """Encode frames as PNG/APNG bytes, then losslessly recompress with oxipng if available."""
     if grayscale:
@@ -198,6 +215,8 @@ def render_asset(name, frames, durations, height):
     frames = fit_height([f.crop(box) for f in frames], height)
     if name not in KEEP_COLOR:
         frames = ink(frames)
+    if name in STABILIZE:
+        frames = stabilize(frames)
     return merge_still_frames(frames, durations, min_ms=ASSET_MIN_FRAME_MS.get(name, MIN_FRAME_MS))
 
 
@@ -253,7 +272,7 @@ def all_outputs():
         "snoopy-typing": ([f.crop(TYPING_BOX) for f in source_frames], source_durations),
         "woodstock-cart": ([f.crop(CART_BOX) for f in source_frames], source_durations),
     }
-    for name in ("snoopy-sleeping", "snoopy-dance", "woodstock-flying", "doghouse-scene"):
+    for name in ("snoopy-sleeping", "snoopy-dance", "snoopy-reading", "doghouse-scene", "snoopy-dozing"):
         sources[name] = load_frames(GIPHY / f"{name}.gif")
 
     outputs = header_output(source_frames, source_durations)

@@ -135,6 +135,15 @@ def run(label, extra_prefs, failures):
         expect("prefs off restores normal", sprite(styles()["left"]), "snoopy-typing.png", True)
         set_pref("snoopy.easter-eggs.off", False)
 
+        expanded = m.execute_script("return document.querySelector('sidebar-main').hasAttribute('expanded');")
+        m.execute_script("document.querySelector('sidebar-main').toggleAttribute('expanded', arguments[0]);", script_args=[not expanded])
+        s = styles()
+        if expanded:
+            expect("Collapsed sidebar shows Snoopy reading", sprite(s["sidebar"]), "snoopy-reading.png", True)
+        else:
+            expect("Expanded sidebar shows the doghouse", sprite(s["sidebar"]), "doghouse-scene.png", True)
+        m.execute_script("document.querySelector('sidebar-main').toggleAttribute('expanded', arguments[0]);", script_args=[expanded])
+
         set_pref("snoopy.sidebar.hide-scene", True)
         s = styles()
         expect("hide-scene removes sidebar art", s["sidebar"], "none", True)

@@ -11,11 +11,12 @@ Firefox theme based on [Snoopy (animated)](https://addons.mozilla.org/firefox/ad
     <td align="center"><img src="docs/showcase/snoopy-typing.png" height="120" alt="Snoopy typing on his doghouse"><br><sub>Typing, after the reload button</sub></td>
     <td align="center"><img src="docs/showcase/woodstock-cart.png" height="90" alt="Woodstock pushing a shopping cart"><br><sub>Woodstock's cart, after the URL bar</sub></td>
     <td align="center"><img src="docs/showcase/snoopy-dance.png" height="120" alt="Snoopy doing his happy dance"><br><sub>Happy dance, while a page loads</sub></td>
+    <td align="center"><img src="docs/showcase/snoopy-sleeping.png" height="120" alt="Snoopy asleep on his doghouse"><br><sub>Asleep, when the window is in the background</sub></td>
   </tr>
   <tr>
-    <td align="center"><img src="docs/showcase/snoopy-sleeping.png" height="120" alt="Snoopy asleep on his doghouse"><br><sub>Asleep, when the window is in the background</sub></td>
-    <td align="center"><img src="docs/showcase/woodstock-flying.png" height="90" alt="Woodstock flying"><br><sub>Woodstock, collapsed sidebar</sub></td>
     <td align="center"><img src="docs/showcase/doghouse-scene.png" height="120" alt="Snoopy on his doghouse with Woodstocks flying around"><br><sub>Doghouse, expanded sidebar</sub></td>
+    <td align="center"><img src="docs/showcase/snoopy-dozing.png" height="120" alt="Snoopy dozing on his doghouse"><br><sub>Dozing, expanded sidebar in the background</sub></td>
+    <td align="center"><img src="docs/showcase/snoopy-reading.png" height="90" alt="Snoopy reading a book"><br><sub>Reading, collapsed sidebar</sub></td>
   </tr>
 </table>
 
@@ -24,7 +25,7 @@ It has two parts:
 - **Theme** (the link above): Peanuts colors (paper tab sidebar, inked selected tab and URL bar) and a black-and-white Snoopy animation. Signed by Mozilla and updates automatically.
 - **userChrome extras** (optional): CSS for what themes can't do: sprites beside the URL bar, live settings, a Charlie Brown zigzag on the Cmd+F find bar, a Notion-style URL bar, developer signals, matching DevTools, and easter eggs.
 
-Peanuts characters and artwork © Peanuts Worldwide LLC. This is a non-commercial fan project. Animations from the official [Peanuts GIPHY account](https://giphy.com/peanuts): [sleeping](https://giphy.com/gifs/2rJw85F0vFJN0SLn3X), [happy dance](https://giphy.com/gifs/7xIMPoVGL2yzu), [Woodstock flying](https://giphy.com/gifs/jptAHfCnH8rSgVSjcE), [doghouse](https://giphy.com/gifs/SvKTWdJjUDcklNyQ0k).
+Peanuts characters and artwork © Peanuts Worldwide LLC. This is a non-commercial fan project. Animations from the official [Peanuts GIPHY account](https://giphy.com/peanuts): [sleeping](https://giphy.com/gifs/2rJw85F0vFJN0SLn3X), [happy dance](https://giphy.com/gifs/7xIMPoVGL2yzu), [doghouse](https://giphy.com/gifs/SvKTWdJjUDcklNyQ0k), [dozing](https://giphy.com/gifs/FDyb54WxxoKoMm98hG), [reading](https://giphy.com/gifs/C0L6c8KLHAiY0).
 
 ## Install
 
@@ -45,8 +46,8 @@ Themes can't have settings, so the userChrome extras read their own `about:confi
 | --- | --- |
 | `snoopy.animations.slow` | Animations play at half speed. |
 | `snoopy.animations.paused` | Every sprite holds still. |
-| `snoopy.easter-eggs.off` | Snoopy keeps typing instead of sleeping or dancing. |
-| `snoopy.sidebar.hide-scene` | No doghouse or Woodstock in the tab sidebar. |
+| `snoopy.easter-eggs.off` | Snoopy keeps typing instead of sleeping, dozing, or dancing. |
+| `snoopy.sidebar.hide-scene` | No doghouse or reading Snoopy in the tab sidebar. |
 
 Animations also pause on their own when **Reduce motion** is on (macOS System Settings → Accessibility → Display).
 
@@ -58,7 +59,8 @@ Need the userChrome extras.
 
 - Snoopy falls asleep on his doghouse when the Firefox window is in the background.
 - Snoopy does his happy dance while the current page loads.
-- Snoopy's doghouse sits at the bottom of the expanded tab sidebar; a lone Woodstock when collapsed.
+- Snoopy's doghouse sits at the bottom of the expanded tab sidebar, and he dozes off there when the window is in the background.
+- Snoopy reads a book at the bottom of the collapsed sidebar.
 
 ## Developer features
 
