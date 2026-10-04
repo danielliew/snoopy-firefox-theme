@@ -5,6 +5,8 @@ Runs once with Firefox's default toolbar and once with flexible spaces around th
 Usage: uv run tests/verify_userchrome.py [path/to/firefox]
 """
 
+import base64
+import io
 import json
 import shutil
 import subprocess
@@ -13,7 +15,9 @@ import tempfile
 import time
 from pathlib import Path
 
+from marionette_driver.by import By
 from marionette_driver.marionette import Marionette
+from PIL import Image, ImageChops
 
 ROOT = Path(__file__).resolve().parent.parent
 FIREFOX = sys.argv[1] if len(sys.argv) > 1 else "/Applications/Firefox.app/Contents/MacOS/firefox"
@@ -158,6 +162,21 @@ def run(label, extra_prefs, failures, dark=False):
         expect("new tab skater is visible", skate["visibility"], "visible", True)
         expect("new tab skater has a skate sprite", sprite(skate["image"]), "skate-")
         expect("new tab skate animation is running", skate["anims"], "snoopy-skate:running")
+
+        def tab_shot(ms):
+            m.execute_script("""
+              const tab = gBrowser.selectedTab; tab.id = 'skate-probe';
+              const a = tab.querySelector('.tab-stack').getAnimations({subtree: true}).find(a => a.animationName === 'snoopy-skate');
+              a.pause(); a.currentTime = arguments[0];
+            """, script_args=[ms])
+            time.sleep(0.3)
+            png = base64.b64decode(m.screenshot(element=m.find_element(By.ID, "skate-probe")))
+            return Image.open(io.BytesIO(png)).convert("RGB")
+
+        mid, done = tab_shot(900), tab_shot(10_000)
+        changed = sum(1 for p in ImageChops.difference(mid, done).getdata() if max(p) > 40)
+        expect("skater is actually painted over the tab", "painted" if changed > 50 else f"{changed} px", "painted", True)
+        m.execute_script("gBrowser.selectedTab.removeAttribute('id');")
         set_pref("snoopy.animations.paused", True)
         hidden = m.execute_script("return getComputedStyle(gBrowser.selectedTab.querySelector('.tab-stack'), '::after').visibility;")
         expect("paused hides the skater", hidden, "hidden", True)
