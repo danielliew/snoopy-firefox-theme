@@ -119,7 +119,7 @@ body > net-error-card {
 /* Covers just Firefox's 195px-wide illustration (30px down beside the text in wide
    windows, at the top above it in narrow ones), leaving a gap before the text. */
 body > net-error-card::before {
-  content: "Good grief.";
+  content: "It was a dark and stormy night\2026";
   position: absolute;
   inset-block-start: 0;
   inset-inline-start: 0;
@@ -130,11 +130,13 @@ body > net-error-card::before {
   align-items: flex-start;
   justify-content: center;
   box-sizing: border-box;
-  padding-block-start: 140px;
-  font: italic 600 15px ui-sans-serif, -apple-system, BlinkMacSystemFont, sans-serif;
+  padding-block-start: 116px;
+  padding-inline-end: 48px;
+  font: 600 13px/1.35 "American Typewriter", "Courier New", Courier, serif;
+  text-align: center;
   color: var(--text-color);
   pointer-events: none;
-  background: url("assets/charlie-line-drive.png") no-repeat center top 30px / 100% auto,
+  background: url("assets/charlie-line-drive.png") no-repeat left top 30px / calc(100% - 48px) auto,
     var(--background-color-canvas);
 }
 
