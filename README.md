@@ -38,7 +38,7 @@ Also need the userChrome extras.
 - **Insecure pages**: plain `http://` sites (and certificate error pages) get a red ink underline on the URL bar.
 - **Automation hazard tape**: windows driven by Playwright, Selenium, or Puppeteer get a striped border under the toolbar, so you don't browse in a test window by accident.
 - **Container tabs**: a bold color bar with an ink edge on each container tab (works with Multi-Account Containers).
-- **Unloaded tabs**: tabs Firefox has unloaded to save memory fade to gray, so you can see what's actually running.
+- **Unloaded tabs**: tabs Firefox has unloaded to save memory get a grayed icon and an italic title, so you can see what's actually running.
 - **DevTools**: paper backgrounds, ink text and selection, and Woodstock-yellow text highlights in light mode. Dark mode DevTools are unchanged.
 
 ## Development

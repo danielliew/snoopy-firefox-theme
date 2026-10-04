@@ -19,6 +19,18 @@
   --tab-border: 1.5px solid var(--tab-border-color) !important;
   --tab-border-color-selected: var(--peanuts-ink) !important;
   --tab-box-shadow-selected: 2px 2px 0 var(--peanuts-ink) !important;
+  --tab-text-color: var(--peanuts-ink) !important;
+  --tab-text-color-hover: var(--peanuts-ink) !important;
+  --tab-text-color-selected: var(--peanuts-ink) !important;
+}
+
+.tabbrowser-tab[selected] .tab-label {
+  font-weight: 600 !important;
+}
+
+/* Expanded sidebar: room between the container bar and the tab icon. */
+#tabbrowser-tabs[orient="vertical"][expanded] .tabbrowser-tab {
+  --tab-inline-padding: calc(var(--tab-vertical-inline-padding) + 6px) !important;
 }
 
 /* ---------- Toolbar and find bar ---------- */
@@ -101,10 +113,14 @@ sidebar-main:not([expanded]) > #vertical-tabs {
   background-repeat: no-repeat !important;
 }
 
-/* Unloaded tabs (not using memory) fade out like pencil sketches. */
-.tabbrowser-tab:is([pending], [discarded]) > .tab-stack > .tab-content {
-  opacity: 0.45;
+/* Unloaded tabs (not using memory): pencil-sketch icon and italic title. */
+.tabbrowser-tab:is([pending], [discarded]) .tab-icon-image {
+  opacity: 0.5;
   filter: grayscale(1);
+}
+
+.tabbrowser-tab:is([pending], [discarded]) .tab-label {
+  font-style: italic;
 }
 
 /* localhost and file:// pages get a Woodstock-yellow LOCAL tag. */
