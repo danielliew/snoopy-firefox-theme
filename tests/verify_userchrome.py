@@ -158,10 +158,24 @@ def run(label, extra_prefs, failures, dark=False):
         if not s["inactive"]:
             expect("Flying Ace patrols private windows", sprite(styles()["left"]), "flying-ace.png", True)
         m.execute_script(root_attr, script_args=["privatebrowsingmode", None])
+        chirp_size = """
+          const spring = document.querySelector('#urlbar-container + toolbarspring');
+          const s = spring ? getComputedStyle(spring) : getComputedStyle(document.getElementById('urlbar-container'), '::after');
+          return s.backgroundSize.split(',')[1].trim();
+        """
         has_downloads = m.execute_script("const b = document.getElementById('downloads-button'); if (b) b.setAttribute('progress', 'true'); return !!b;")
         if has_downloads:
-            expect("Woodstock chirps while downloading", sprite(styles()["right"]), "woodstock-chirp.png", True)
+            expect("Woodstock chirps while downloading", m.execute_script(chirp_size), "28px 26px", True)
             m.execute_script("document.getElementById('downloads-button').removeAttribute('progress');")
+            time.sleep(5.5)
+            expect("Woodstock goes back to his cart after the download", m.execute_script(chirp_size), "0px 0px", True)
+            m.execute_script("""
+              const b = document.getElementById('downloads-button');
+              b.setAttribute('notification', 'finish');
+              return new Promise(r => setTimeout(() => { b.removeAttribute('notification'); r(); }, 200));
+            """)
+            time.sleep(1)
+            expect("a quick download still gets a chirp afterwards", m.execute_script(chirp_size), "28px 26px", True)
         if not s["inactive"]:
             crowd = m.execute_script("const n = gBrowser.tabs.length; for (let i = n; i < 50; i++) gBrowser.addTrustedTab('about:blank'); return n;")
             time.sleep(0.5)

@@ -104,7 +104,7 @@ Need the userChrome extras. No spoilers here, just hints:
 - Put on some music. Somebody up top notices, and so does somebody in the sidebar.
 - Open a new tab and watch the sidebar.
 - Go private. Someone's on patrol.
-- Download something big and watch Woodstock. (He needs the Downloads button in the toolbar.)
+- Download something and watch Woodstock. (He needs the Downloads button in the toolbar.)
 - Hoard tabs. Fifty or so, then come back to the window.
 - Lost something on a page? The doctor is in.
 - Snoopy, Woodstock, and the doghouse don't mind being poked. Click and hold, and try more than once.

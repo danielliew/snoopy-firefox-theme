@@ -25,6 +25,12 @@
   initial-value: 0;
 }
 
+@property --snoopy-chirp {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
+
 @property --snoopy-crowd {
   syntax: "<number>";
   inherits: false;
@@ -220,8 +226,6 @@
 :root {
   --snoopy-left: var(--snoopy-typing);
   --snoopy-left-size: 59px 35px;
-  --woodstock-right: var(--woodstock-cart);
-  --woodstock-right-width: 34px;
 }
 
 @media not -moz-pref("snoopy.easter-eggs.off") {
@@ -230,12 +234,6 @@
   :root[privatebrowsingmode="temporary"] {
     --snoopy-left: var(--flying-ace);
     --snoopy-left-size: 47px 35px;
-  }
-
-  /* Easter egg: Woodstock chirps while a download is running. */
-  :root:has(#downloads-button[progress]) {
-    --woodstock-right: var(--woodstock-chirp);
-    --woodstock-right-width: 28px;
   }
 
   /* Easter egg: Snoopy naps on his doghouse while the window is in the background. */
@@ -287,13 +285,26 @@
     content: "";
     min-width: 72px !important;
     /* Centered between the URL bar and the next button. Charlie Brown takes
-       Woodstock's place while a click reaction plays. */
-    background-image: var(--charlie-dance), var(--woodstock-right);
+       Woodstock's place while a click reaction plays, and Woodstock chirps instead
+       of pushing his cart while --snoopy-chirp is 1. */
+    --woodstock: calc(1 - var(--snoopy-react));
+    background-image: var(--charlie-dance), var(--woodstock-chirp), var(--woodstock-cart);
     background-size: auto calc(var(--snoopy-react) * 35px),
-      calc((1 - var(--snoopy-react)) * var(--woodstock-right-width)) calc((1 - var(--snoopy-react)) * 26px);
+      calc(var(--woodstock) * var(--snoopy-chirp) * 28px) calc(var(--woodstock) * var(--snoopy-chirp) * 26px),
+      calc(var(--woodstock) * (1 - var(--snoopy-chirp)) * 34px) calc(var(--woodstock) * (1 - var(--snoopy-chirp)) * 26px);
     background-repeat: no-repeat !important;
     background-position: center;
-    transition: --snoopy-react 0s var(--react-duration);
+    transition: --snoopy-react 0s var(--react-duration), --snoopy-chirp 0s 5s;
+  }
+
+  /* Easter egg: Woodstock chirps while a download runs, and for 5 seconds after
+     Firefox's brief start or finish signal, so quick downloads get a chirp too. */
+  @media not -moz-pref("snoopy.easter-eggs.off") {
+    :root:has(#downloads-button:is([progress], [notification])) #urlbar-container + toolbarspring,
+    :root:has(#downloads-button:is([progress], [notification])) #nav-bar-customization-target:not(:has(> #urlbar-container + toolbarspring)) > #urlbar-container::after {
+      --snoopy-chirp: 1;
+      transition: --snoopy-react 0s var(--react-duration);
+    }
   }
 }
 
