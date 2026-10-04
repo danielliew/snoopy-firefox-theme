@@ -122,15 +122,43 @@ uv run build.py bundle   # build, then collect dist/release/ (signed theme + use
 
 Install [oxipng](https://github.com/shssoichiro/oxipng) (`brew install oxipng`) before building; it shrinks the images about 20% further, and the build skips it if it's missing.
 
-Checks (CI runs these on every push):
+### Automated checks (CI)
+
+GitHub Actions ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs these on every push to `main`, every pull request, every Monday (to catch a new Firefox release breaking userChrome), and on demand from the Actions tab. Public repos run them for free. GitHub pauses the Monday run after 60 days without commits; re-enable it from the Actions tab.
 
 ```sh
-uv run build.py check
-npx web-ext lint --source-dir theme --self-hosted  # manifest and theme validation
+uv run build.py check                              # committed images and sprites.css match the source; size budgets
+npx web-ext lint --source-dir theme --self-hosted  # Mozilla's manifest and theme validation
 uv run tests/verify_userchrome.py                  # userChrome in a throwaway headless Firefox
+sh -n install.sh                                   # installer syntax only
 ```
 
-`tests/verify_userchrome.py` starts a throwaway headless Firefox with the userChrome extras, checks the computed styles in both toolbar layouts, and flips each setting.
+`tests/verify_userchrome.py` starts a throwaway headless Firefox with the userChrome extras three times (default toolbar, flexible spaces, dark mode). It checks computed styles: which sprite shows in each state (typing, sleeping, dancing, Joe Cool, the new-tab skater), every about:config setting, small-window behavior, the paper toolbar, the white URL bar, the rounded page card, and that the collapsed sidebar fits the selected tab's shadow next to a scrollbar.
+
+### Manual checks before a release
+
+CI runs on Linux and reads computed styles, so it can't see how things actually look, macOS rendering, signing, or what the installer actually does. Before publishing a release, check these in real Firefox on a Mac in a throwaway profile, so your own profile stays untouched:
+
+```sh
+/Applications/Firefox.app/Contents/MacOS/firefox -CreateProfile snoopy-test
+/Applications/Firefox.app/Contents/MacOS/firefox -P snoopy-test --no-remote
+```
+
+Find the profile folder in `about:support` → **Profile Folder**, then:
+
+- **Installer**: `SNOOPY_PROFILE="<profile>" sh install.sh` (or `SNOOPY_PROFILE="<profile>" curl -fsSL …/install.sh | sh` for the published copy). Check that it backed up an existing `chrome` folder and added the stylesheets pref to `user.js`, then restart Firefox.
+- **Signed theme**: install `snoopy-vertical.xpi` from the release's download link. It should install without an "unverified" warning. After a theme release, an older installed copy should update from **about:addons** → gear → **Check for Updates**.
+- **Look**, with System Settings → Appearance → **Show scroll bars: Always**, so the scrollbar takes space as it does with a mouse:
+  - Expanded and collapsed sidebar with enough tabs to scroll: the selected tab's border and shadow aren't clipped.
+  - URL bar at rest, on hover, focused, and with the results dropdown open.
+  - Paper toolbar, rounded page card with the sidebar on the left and right (**Settings** → **Sidebar**), and no paper edge in video fullscreen.
+  - Cmd+F find bar zigzag, a `localhost` page (LOCAL tag), and an `http://` page (insecure underline).
+  - Compact density (**Customize Toolbar…** → **Density**).
+- **Animations**: Snoopy types, then sleeps and the doghouse dozes when another app is focused. He dances while a page loads, Joe Cool takes over while a tab plays sound (and Snoopy returns when it's muted), and the skater rolls across each new tab. Toggle each `snoopy.*` pref in `about:config`; changes apply instantly.
+- **Dark mode**: switch macOS to Dark and set Firefox's theme to **System auto** in about:addons. Sprites stay, Firefox's own colors and corners return, and nothing turns unreadable.
+- **After a failed Monday run**: a new Firefox renamed or restyled something. Update Firefox locally, rerun `uv run tests/verify_userchrome.py`, and fix the selectors it reports.
+
+Delete the test profile afterwards with `about:profiles`.
 
 To test the theme without signing: `about:debugging#/runtime/this-firefox` → **Load Temporary Add-on…** → pick `theme/manifest.json`. Click **Reload** there after rebuilding. Temporary add-ons are removed when Firefox restarts.
 
