@@ -10,35 +10,35 @@ Firefox theme based on [Snoopy (animated)](https://addons.mozilla.org/firefox/ad
   <tr>
     <td align="center"><img src="docs/showcase/snoopy-typing.png" height="120" alt="Snoopy typing on his doghouse"><br><sub>Typing, after the reload button</sub></td>
     <td align="center"><img src="docs/showcase/woodstock-cart.png" height="90" alt="Woodstock pushing a shopping cart"><br><sub>Woodstock's cart, after the URL bar</sub></td>
-    <td align="center"><img src="docs/showcase/snoopy-dance.png" height="120" alt="Snoopy doing his happy dance"><br><sub>Happy dance, while a page loads</sub></td>
-    <td align="center"><img src="docs/showcase/snoopy-sleeping.png" height="120" alt="Snoopy asleep on his doghouse"><br><sub>Asleep, when the window is in the background</sub></td>
+    <td align="center"><img src="docs/showcase/snoopy-dance.png" height="120" alt="Snoopy doing his happy dance"><br><sub>Happy dance</sub></td>
+    <td align="center"><img src="docs/showcase/snoopy-sleeping.png" height="120" alt="Snoopy asleep on his doghouse"><br><sub>Asleep</sub></td>
   </tr>
   <tr>
     <td align="center"><img src="docs/showcase/doghouse-scene.png" height="120" alt="Snoopy on his doghouse with Woodstocks flying around"><br><sub>Doghouse, expanded sidebar</sub></td>
-    <td align="center"><img src="docs/showcase/snoopy-dozing.png" height="120" alt="Snoopy dozing on his doghouse"><br><sub>Dozing, expanded sidebar in the background</sub></td>
+    <td align="center"><img src="docs/showcase/snoopy-dozing.png" height="120" alt="Snoopy dozing on his doghouse"><br><sub>Dozing</sub></td>
     <td align="center"><img src="docs/showcase/snoopy-reading.png" height="90" alt="Snoopy reading a book"><br><sub>Reading, collapsed sidebar</sub></td>
-    <td align="center"><img src="docs/showcase/joe-cool.png" height="120" alt="Joe Cool listening at his turntable"><br><sub>Joe Cool, while a tab plays sound</sub></td>
+    <td align="center"><img src="docs/showcase/joe-cool.png" height="120" alt="Joe Cool listening at his turntable"><br><sub>Joe Cool</sub></td>
   </tr>
   <tr>
-    <td align="center"><img src="docs/showcase/skate-ollie.png" height="120" alt="Snoopy skateboarding, board kicked up"><br><sub>Skating across a new tab</sub></td>
-    <td align="center"><img src="docs/showcase/skate-jump.png" height="120" alt="Snoopy jumping on his skateboard"><br><sub>Skating across a new tab</sub></td>
-    <td align="center"><img src="docs/showcase/skate-cruise.png" height="120" alt="Snoopy cruising on his skateboard"><br><sub>Skating across a new tab</sub></td>
+    <td align="center"><img src="docs/showcase/skate-ollie.png" height="120" alt="Snoopy skateboarding, board kicked up"><br><sub>Skating</sub></td>
+    <td align="center"><img src="docs/showcase/skate-jump.png" height="120" alt="Snoopy jumping on his skateboard"><br><sub>Skating</sub></td>
+    <td align="center"><img src="docs/showcase/skate-cruise.png" height="120" alt="Snoopy cruising on his skateboard"><br><sub>Skating</sub></td>
   </tr>
   <tr>
-    <td align="center"><img src="docs/showcase/snoopy-guitar.png" height="120" alt="Snoopy playing a red electric guitar"><br><sub>Guitar solo, hidden easter egg</sub></td>
-    <td align="center"><img src="docs/showcase/joe-cool-badge.png" height="120" alt="Joe Cool's Listening Lounge badge with animated red lettering"><br><sub>Joe Cool's Listening Lounge, hidden easter egg</sub></td>
-    <td align="center"><img src="docs/showcase/charlie-dance.png" height="120" alt="Charlie Brown dancing"><br><sub>Charlie Brown dancing, hidden easter egg</sub></td>
-    <td align="center"><img src="docs/showcase/christmas-dancer.png" height="120" alt="A Peanuts kid dancing from A Charlie Brown Christmas"><br><sub>Christmas dancer, hidden easter egg</sub></td>
+    <td align="center"><img src="docs/showcase/snoopy-guitar.png" height="120" alt="Snoopy playing a red electric guitar"><br><sub>Guitar solo</sub></td>
+    <td align="center"><img src="docs/showcase/joe-cool-badge.png" height="120" alt="Joe Cool's Listening Lounge badge with animated red lettering"><br><sub>Joe Cool's Listening Lounge</sub></td>
+    <td align="center"><img src="docs/showcase/charlie-dance.png" height="120" alt="Charlie Brown dancing"><br><sub>Charlie Brown dancing</sub></td>
+    <td align="center"><img src="docs/showcase/christmas-dancer.png" height="120" alt="A Peanuts kid dancing from A Charlie Brown Christmas"><br><sub>Christmas dancer</sub></td>
   </tr>
   <tr>
-    <td align="center"><img src="docs/showcase/flying-ace.png" height="120" alt="Snoopy as the World War I Flying Ace on his doghouse"><br><sub>Flying Ace, in private windows</sub></td>
-    <td align="center"><img src="docs/showcase/woodstock-chirp.png" height="90" alt="Woodstock chirping"><br><sub>Woodstock chirping, while downloading</sub></td>
-    <td align="center"><img src="docs/showcase/crowded.png" height="120" alt="It's getting crowded in here, with lots of Snoopys"><br><sub>It's getting crowded, on focus at 50+ tabs</sub></td>
+    <td align="center"><img src="docs/showcase/flying-ace.png" height="120" alt="Snoopy as the World War I Flying Ace on his doghouse"><br><sub>Flying Ace</sub></td>
+    <td align="center"><img src="docs/showcase/woodstock-chirp.png" height="90" alt="Woodstock chirping"><br><sub>Woodstock chirping</sub></td>
+    <td align="center"><img src="docs/showcase/crowded.png" height="120" alt="It's getting crowded in here, with lots of Snoopys"><br><sub>It's getting crowded</sub></td>
     <td align="center"><img src="docs/showcase/charlie-line-drive.png" height="120" alt="Charlie Brown knocked over by a line drive"><br><sub>Charlie Brown, on error pages</sub></td>
   </tr>
   <tr>
-    <td align="center"><img src="docs/showcase/schroeder-piano.png" height="120" alt="Schroeder playing his toy piano"><br><sub>Schroeder, beside tabs playing sound</sub></td>
-    <td align="center"><img src="docs/showcase/lucy-booth.png" height="120" alt="Lucy in her psychiatric help booth: The Doctor Is In"><br><sub>The Doctor Is In, on the find bar</sub></td>
+    <td align="center"><img src="docs/showcase/schroeder-piano.png" height="120" alt="Schroeder playing his toy piano"><br><sub>Schroeder</sub></td>
+    <td align="center"><img src="docs/showcase/lucy-booth.png" height="120" alt="Lucy in her psychiatric help booth: The Doctor Is In"><br><sub>The Doctor Is In</sub></td>
   </tr>
 </table>
 
@@ -81,7 +81,7 @@ Themes can't have settings, so the userChrome extras read their own `about:confi
 | --- | --- |
 | `snoopy.animations.slow` | Animations (and the skate ride) play at half speed. |
 | `snoopy.animations.paused` | Every sprite holds still, and no skating. |
-| `snoopy.easter-eggs.off` | Snoopy keeps typing: no sleeping, dozing, Joe Cool, dancing, skating, Flying Ace, chirping Woodstock, crowded sidebar, Schroeder, or Lucy. |
+| `snoopy.easter-eggs.off` | Turns off every [easter egg](#easter-eggs); Snoopy just keeps typing. |
 | `snoopy.sidebar.hide-scene` | No doghouse or reading Snoopy in the tab sidebar. |
 | `snoopy.color.all` | Every animation in full color instead of black-and-white line art. |
 | `snoopy.color.typing`, `.sleeping`, `.dance`, `.reading`, `.doghouse`, `.dozing`, `.skate` | Just that animation in color (for example `snoopy.color.doghouse`). |
@@ -97,19 +97,17 @@ The extras make room on small screens: Woodstock's cart steps aside when the win
 
 ## Easter eggs
 
-Need the userChrome extras.
+Need the userChrome extras. No spoilers here, just hints:
 
-- Snoopy falls asleep on his doghouse when the Firefox window is in the background.
-- Snoopy does his happy dance while the current page loads.
-- Snoopy becomes Joe Cool, headphones on, while any tab is playing sound (unless it's muted).
-- Snoopy skates across each new tab in the expanded sidebar, taking turns between three tricks.
-- Snoopy's doghouse sits at the bottom of the expanded tab sidebar, and he dozes off there when the window is in the background.
-- Snoopy reads a book at the bottom of the collapsed sidebar.
-- Snoopy becomes the World War I Flying Ace, goggles and scarf on, in private windows.
-- Woodstock chirps instead of pushing his cart while a download is running (needs the Downloads button in the toolbar, which Firefox shows during downloads).
-- With 50 or more tabs open, "it's getting crowded in here" takes over the doghouse for 5 seconds each time the window comes to the front.
-- Schroeder plays his toy piano at the end of each expanded tab that's playing sound (he steps aside on hover for the close button, and leaves when the tab is muted).
-- Lucy's psychiatric booth stands at the end of the Cmd+F find bar. The Doctor Is In.
+- Keep an eye on Snoopy (and his doghouse) when Firefox isn't the window you're using.
+- Slow page? Watch Snoopy while you wait.
+- Put on some music. Somebody up top notices, and so does somebody in the sidebar.
+- Open a new tab and watch the sidebar.
+- Go private. Someone's on patrol.
+- Download something big and watch Woodstock. (He needs the Downloads button in the toolbar.)
+- Hoard tabs. Fifty or so, then come back to the window.
+- Lost something on a page? The doctor is in.
+- Snoopy, Woodstock, and the doghouse don't mind being poked. Click and hold, and try more than once.
 
 ## Firefox pages
 
