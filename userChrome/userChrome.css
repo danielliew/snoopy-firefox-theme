@@ -211,11 +211,12 @@
   #nav-bar-customization-target:not(:has(> #urlbar-container + toolbarspring)) > #urlbar-container::after {
     content: "";
     min-width: 72px !important;
-    /* Charlie Brown takes Woodstock's place while a click reaction plays. */
+    /* Centered between the URL bar and the next button. Charlie Brown takes
+       Woodstock's place while a click reaction plays. */
     background-image: var(--charlie-dance), var(--woodstock-cart);
     background-size: auto calc(var(--snoopy-react) * 35px), calc((1 - var(--snoopy-react)) * 34px) calc((1 - var(--snoopy-react)) * 26px);
     background-repeat: no-repeat !important;
-    background-position: right 4px center;
+    background-position: center;
     transition: --snoopy-react 0s var(--react-duration);
   }
 }
