@@ -228,6 +228,23 @@ def run(label, extra_prefs, failures, dark=False):
             expect("Expanded sidebar shows the doghouse", sprite(s["sidebar"]), "doghouse-scene.png", True)
         m.execute_script("document.querySelector('sidebar-main').toggleAttribute('expanded', arguments[0]);", script_args=[expanded])
 
+        if not dark:
+            m.execute_script("Services.prefs.setIntPref('layout.css.prefers-color-scheme.content-override', 0);")
+            time.sleep(0.3)
+            outlines = m.execute_script("""
+              const icon = gBrowser.selectedTab.querySelector('.tab-icon-image');
+              const src = icon.getAttribute('src');
+              icon.setAttribute('src', 'page-icon:https://github.com/');
+              const site = getComputedStyle(icon).filter;
+              icon.setAttribute('src', 'chrome://branding/content/icon32.png');
+              const own = getComputedStyle(icon).filter;
+              src === null ? icon.removeAttribute('src') : icon.setAttribute('src', src);
+              return [site.includes('drop-shadow'), own];
+            """)
+            m.execute_script("Services.prefs.clearUserPref('layout.css.prefers-color-scheme.content-override');")
+            expect("dark websites get outlined favicons", outlines[0], True, True)
+            expect("Firefox's own icons stay unoutlined", outlines[1], "none", True)
+
         sliding = m.execute_script("""
           const main = document.querySelector('sidebar-main');
           main.toggleAttribute('sidebar-ongoing-animations', true);

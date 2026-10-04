@@ -57,6 +57,18 @@
     }
   }
 
+  /* Websites follow the OS dark mode while the chrome stays paper, so sites serve
+     dark-mode favicons (often white). An ink outline keeps them visible; dark icons
+     barely change. Firefox's own icons come from chrome:// and are skipped. */
+  @media (-moz-content-prefers-color-scheme: dark) {
+    .tab-icon-image[src]:not([src^="chrome:"]),
+    .urlbarView-favicon[src]:not([src^="chrome:"]),
+    .bookmark-item:not([container]) > .toolbarbutton-icon[src]:not([src^="chrome:"]) {
+      --favicon-outline: drop-shadow(0 0 0.5px var(--peanuts-ink));
+      filter: var(--favicon-outline) var(--favicon-outline) var(--favicon-outline) !important;
+    }
+  }
+
   /* Charlie Brown zigzag along the top of the Cmd+F find bar. */
   findbar {
     background-color: #ffffff !important;

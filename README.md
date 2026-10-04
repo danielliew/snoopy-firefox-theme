@@ -103,6 +103,7 @@ Also need the userChrome extras.
 
 - **Firefox 137 or newer** for the settings (including ESR 140); built and tested on Firefox 157 with vertical tabs. The theme alone works on any recent Firefox.
 - The paper-and-ink colors apply only while Firefox's interface is light, which the Snoopy theme guarantees. With a dark theme, the extras keep the sprites but leave Firefox's colors alone, so nothing turns unreadable.
+- Websites still follow your system's dark mode. Their dark-mode favicons (often white) get a thin ink outline so they stay visible on the paper; Firefox's own icons are left alone.
 - userChrome.css styles Firefox's internals, which Mozilla doesn't support and can change in any release. CI runs the headless Firefox test against the latest Firefox every week to catch breakage early.
 - The installer covers macOS and Linux; Windows uses the manual steps.
 - CSS can't tell a brand-new tab from one that reappears, so dragging a tab or expanding a collapsed tab group can replay the skate on those tabs.
