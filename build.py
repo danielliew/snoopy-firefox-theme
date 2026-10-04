@@ -38,6 +38,12 @@ ASSET_HEIGHTS = {
     "doghouse-scene": 83,
 }
 
+# README showcase renders, in px.
+SHOWCASE = ROOT / "docs" / "showcase"
+SHOWCASE_HEIGHT = 120
+SHOWCASE_HEIGHTS = {"woodstock-cart": 90, "woodstock-flying": 90, "doghouse-scene": 160}
+PAPER = (251, 245, 230, 255)
+
 # Assets kept in their original colors instead of black-and-white line art.
 KEEP_COLOR = {"woodstock-cart"}
 
@@ -159,18 +165,37 @@ def save_apng(frames, durations, path):
     )
 
 
-def build_asset(name, frames, durations):
+def render_asset(name, frames, durations, height):
     frames = [clear_white_background(f) for f in frames]
     box = union_bbox(frames)
-    frames = fit_height([f.crop(box) for f in frames], ASSET_HEIGHTS[name] * SCALE)
+    frames = fit_height([f.crop(box) for f in frames], height)
     if name not in KEEP_COLOR:
         frames = ink(frames)
-    frames, durations = merge_still_frames(frames, durations, min_ms=ASSET_MIN_FRAME_MS.get(name, MIN_FRAME_MS))
+    return merge_still_frames(frames, durations, min_ms=ASSET_MIN_FRAME_MS.get(name, MIN_FRAME_MS))
+
+
+def build_asset(name, frames, durations):
+    frames, durations = render_asset(name, frames, durations, ASSET_HEIGHTS[name] * SCALE)
     path = ASSETS / f"{name}.png"
     save_apng(frames, durations, path)
     w, h = frames[0].size
     print(f"  {name}: {len(frames)} frames, {w // SCALE}x{h // SCALE} css px, {path.stat().st_size // 1024} KB")
     return frames, durations
+
+
+def build_showcase(name, frames, durations):
+    """README preview on paper, so the black ink shows on GitHub's dark mode too."""
+    height = SHOWCASE_HEIGHTS.get(name, SHOWCASE_HEIGHT)
+    frames, durations = render_asset(name, frames, durations, height)
+    pad = 16
+    w, h = frames[0].size
+    canvas_size = (w + 2 * pad, SHOWCASE_HEIGHTS.get(name, SHOWCASE_HEIGHT) + 2 * pad)
+    tiles = []
+    for frame in frames:
+        tile = Image.new("RGBA", canvas_size, PAPER)
+        tile.alpha_composite(frame, (pad, pad))
+        tiles.append(tile.convert("RGB"))
+    save_apng(tiles, durations, SHOWCASE / f"{name}.png")
 
 
 def build_header(source_frames, durations):
@@ -210,11 +235,20 @@ def main():
     print("theme:")
     build_header(source_frames, source_durations)
 
-    print("userChrome assets:")
-    build_asset("snoopy-typing", [f.crop(TYPING_BOX) for f in source_frames], source_durations)
-    build_asset("woodstock-cart", [f.crop(CART_BOX) for f in source_frames], source_durations)
+    sources = {
+        "snoopy-typing": ([f.crop(TYPING_BOX) for f in source_frames], source_durations),
+        "woodstock-cart": ([f.crop(CART_BOX) for f in source_frames], source_durations),
+    }
     for name in ("snoopy-sleeping", "snoopy-dance", "woodstock-flying", "doghouse-scene"):
-        build_asset(name, *load_frames(GIPHY / f"{name}.gif"))
+        sources[name] = load_frames(GIPHY / f"{name}.gif")
+
+    print("userChrome assets:")
+    for name, (frames, durations) in sources.items():
+        build_asset(name, frames, durations)
+
+    for name, (frames, durations) in sources.items():
+        build_showcase(name, frames, durations)
+    print(f"showcase: {len(sources)} previews in {SHOWCASE.relative_to(ROOT)}")
 
     xpi = package(THEME_DIR, DIST)
     print(f"packaged {xpi.relative_to(ROOT)}")

@@ -4,6 +4,21 @@ Firefox theme based on [Snoopy (animated)](https://addons.mozilla.org/firefox/ad
 
 **[Try it: install in Firefox](https://github.com/danielliew/snoopy-firefox-theme/releases/latest/download/snoopy-vertical.xpi)**
 
+## Showcase
+
+<table>
+  <tr>
+    <td align="center"><img src="docs/showcase/snoopy-typing.png" height="120" alt="Snoopy typing on his doghouse"><br><sub>Typing, after the reload button</sub></td>
+    <td align="center"><img src="docs/showcase/woodstock-cart.png" height="90" alt="Woodstock pushing a shopping cart"><br><sub>Woodstock's cart, after the URL bar</sub></td>
+    <td align="center"><img src="docs/showcase/snoopy-dance.png" height="120" alt="Snoopy doing his happy dance"><br><sub>Happy dance, while a page loads</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/showcase/snoopy-sleeping.png" height="120" alt="Snoopy asleep on his doghouse"><br><sub>Asleep, when the window is in the background</sub></td>
+    <td align="center"><img src="docs/showcase/woodstock-flying.png" height="90" alt="Woodstock flying"><br><sub>Woodstock, collapsed sidebar</sub></td>
+    <td align="center"><img src="docs/showcase/doghouse-scene.png" height="120" alt="Snoopy on his doghouse with Woodstocks flying around"><br><sub>Doghouse, expanded sidebar</sub></td>
+  </tr>
+</table>
+
 It has two parts:
 
 - **Theme** (the link above): Peanuts colors (paper tab sidebar, inked selected tab and URL bar) and a black-and-white Snoopy animation. Signed by Mozilla and updates automatically.
@@ -49,7 +64,7 @@ python3 -m venv .venv
 .venv/bin/python build.py
 ```
 
-This writes `theme/images/header.png`, the 2x (Retina) animations in `userChrome/assets/` (converted to Notion-style black-and-white line art), and `dist/snoopy-vertical.xpi`. Source art lives in `source/`; sizes and frame-rate caps are constants at the top of `build.py`.
+This writes `theme/images/header.png`, the 2x (Retina) animations in `userChrome/assets/` (converted to Notion-style black-and-white line art), the README previews in `docs/showcase/`, and `dist/snoopy-vertical.xpi`. Source art lives in `source/`; sizes and frame-rate caps are constants at the top of `build.py`.
 
 To test the theme without signing: `about:debugging#/runtime/this-firefox` → **Load Temporary Add-on…** → pick `theme/manifest.json`. Click **Reload** there after rebuilding. Temporary add-ons are removed when Firefox restarts.
 
