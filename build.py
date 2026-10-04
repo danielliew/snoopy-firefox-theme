@@ -111,6 +111,10 @@ ASSET_MIN_FRAME_MS = {
     "lucy-booth": 280,
 }
 STABILIZE = {"snoopy-dozing", "snoopy-guitar", "flying-ace"}
+# Color assets with no linework of their own get an ink outline (in source px) so
+# they don't wash out on the paper.
+OUTLINED = {"woodstock-chirp": 2}
+INK = (55, 53, 47, 255)
 # Palette size for color assets with few inks (default 64).
 ASSET_COLORS = {"joe-cool-badge": 32, "crowded": 24, "lucy-booth": 24}
 # Joe Cool cropped out of his Listening Lounge badge, above the animated lettering.
@@ -253,6 +257,20 @@ def flatten_colors(frames, colors=64):
     return out
 
 
+def outline(frames, width):
+    """Pad each frame by width and draw an ink ring that wide around the silhouette."""
+    out = []
+    for f in frames:
+        padded = Image.new("RGBA", (f.width + 2 * width, f.height + 2 * width), (0, 0, 0, 0))
+        padded.paste(f, (width, width))
+        ring = padded.getchannel("A").filter(ImageFilter.MaxFilter(2 * width + 1))
+        canvas = Image.new("RGBA", padded.size, (0, 0, 0, 0))
+        canvas.paste(Image.new("RGBA", padded.size, INK), mask=ring)
+        canvas.alpha_composite(padded)
+        out.append(canvas)
+    return out
+
+
 def stabilize(frames, threshold=40, radius=4, density=24):
     """Drop scattered single-pixel flicker so each delta frame only covers real motion."""
     out = [frames[0]]
@@ -303,9 +321,12 @@ def render_asset(name, frames, durations, height, color=None):
     if name in IN_PLACE:
         frames = in_place(frames)
     box = union_bbox(frames)
-    frames = fit_height([f.crop(box) for f in frames], height)
+    stroke = OUTLINED.get(name, 0) if color else 0
+    frames = fit_height([f.crop(box) for f in frames], height - 2 * stroke)
     if color:
         frames = flatten_colors(frames, ASSET_COLORS.get(name, 64))
+        if stroke:
+            frames = outline(frames, stroke)
     elif name in LINE_ART:
         frames = [Image.merge("RGBA", (*[f.convert("L")] * 3, f.getchannel("A"))) for f in frames]
     else:
