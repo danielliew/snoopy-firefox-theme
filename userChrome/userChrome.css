@@ -196,11 +196,12 @@
   #nav-bar-customization-target:not(:has(> #stop-reload-button + toolbarspring)) > #urlbar-container::before {
     content: "";
     min-width: 72px !important;
-    /* A guitar solo takes over (the usual Snoopy slides out of view) while a click reaction plays. */
+    /* Centered between reload and the URL bar. A guitar solo takes over (the usual
+       Snoopy moves out of view) while a click reaction plays. */
     background-image: var(--snoopy-guitar), var(--snoopy-left);
     background-size: auto calc(var(--snoopy-react) * 35px), var(--snoopy-left-size);
     background-repeat: no-repeat !important;
-    background-position: left 4px center, left calc(4px - var(--snoopy-react) * 100px) center;
+    background-position: center, left calc(50% - var(--snoopy-react) * 10000px) center;
     transition: --snoopy-react 0s var(--react-duration);
   }
 }
